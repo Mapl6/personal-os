@@ -292,7 +292,7 @@ export async function seedExampleData(services: Services, areas: Area[], now = n
   // History: ~3 weeks of completed / skipped / moved work.
   await seedHistory(services, { today, now, frontend, startup, health, personal, fun, fmId: fm.id, mvpId: mvp.id, rand });
 
-  for (let i = 1; i <= 20; i += 3) await services.goals.logProgress(book.id, 20 + Math.round(rand() * 25), addDaysKey(today, -i));
+  for (let i = 1; i <= 20; i += 3) await services.goals.logProgress(book.id, 15 + Math.round(rand() * 15), addDaysKey(today, -i));
 }
 
 async function seedHistory(

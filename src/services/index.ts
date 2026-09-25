@@ -14,12 +14,9 @@ import { createTimeService, type TimeService } from "./time-service";
 export function createServices(store: DataStore, now: () => Date = () => new Date()) {
   const ctx: ServiceContext = { store, now };
   // Services reference each other lazily to avoid construction-order cycles.
-  let tasks: TaskService;
-  let schedule: ScheduleService;
-  let time: TimeService;
-  tasks = createTaskService(ctx, () => schedule);
-  time = createTimeService(ctx, { tasks: () => tasks });
-  schedule = createScheduleService(ctx, { tasks: () => tasks, time: () => time });
+  const tasks: TaskService = createTaskService(ctx, () => schedule);
+  const time: TimeService = createTimeService(ctx, { tasks: () => tasks });
+  const schedule: ScheduleService = createScheduleService(ctx, { tasks: () => tasks, time: () => time });
 
   return {
     store,

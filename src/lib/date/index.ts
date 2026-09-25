@@ -172,3 +172,20 @@ export function relativeDayLabel(key: DateKey, today: DateKey): string {
   if (diff > 1 && diff < 7) return formatDateKey(key, "EEEE");
   return formatDateKey(key, "MMM d");
 }
+
+/** Parses user duration input: "90", "90m", "1.5h", "1h30", "1h 30m", "1:30". */
+export function parseDurationInput(value: string): number | null {
+  const v = value.trim().toLowerCase().replace(/\s+/g, "");
+  if (!v) return null;
+  let m = /^(\d+)$/.exec(v);
+  if (m) return +m[1];
+  m = /^(\d+):(\d{1,2})$/.exec(v);
+  if (m) return +m[1] * 60 + +m[2];
+  m = /^(\d+(?:\.\d+)?)h$/.exec(v);
+  if (m) return Math.round(parseFloat(m[1]) * 60);
+  m = /^(\d+)m(?:in)?$/.exec(v);
+  if (m) return +m[1];
+  m = /^(\d+)h(\d{1,2})m?$/.exec(v);
+  if (m) return +m[1] * 60 + +m[2];
+  return null;
+}

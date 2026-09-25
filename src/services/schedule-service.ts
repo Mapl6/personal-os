@@ -215,6 +215,19 @@ export function createScheduleService(
     return next;
   }
 
+  /** Schedules a task into the first free slot on/after `date` (from `notBefore` minutes). */
+  async function scheduleInNextSlot(taskId: string, date: DateKey, notBefore = 0): Promise<ScheduleBlock> {
+    const task = await must(store.tasks.get(taskId), "Task");
+    const duration = await remainingEstimate(task);
+    const [blocks, wh] = await Promise.all([store.blocks.listByRange("date", date, addDaysKey(date, 14)), hours()]);
+    const slot = findNextAvailableSlot(blocks, date, notBefore, duration, wh);
+    return scheduleTask(taskId, {
+      date: slot?.date ?? date,
+      startMinutes: slot?.startMinutes ?? null,
+      durationMinutes: duration,
+    });
+  }
+
   // ------------------------------------------------------------ recurrence
 
   /** Creates missing blocks for a recurring task's occurrences in range. Idempotent. */
@@ -339,6 +352,7 @@ export function createScheduleService(
 
   return {
     scheduleTask,
+    scheduleInNextSlot,
     moveBlock,
     updateBlock,
     resizeBlock,
