@@ -1,120 +1,173 @@
+<div align="center">
+
 # Personal OS
 
-A private, local-first operating system for planning, executing, tracking and reviewing a full-time
-personal development routine — frontend learning, startup + AI work, health, books, rest.
+**A calm, local-first operating system for planning, doing and reviewing your days, weeks and months.**
 
-> **Plan → Execute → Track → Review → Adjust.** Plans are hypotheses. Moving a task is normal,
-> never a failure.
+Plan → Execute → Track → Review → Adjust. Plans are hypotheses: moving a task is normal, never a failure.
 
-## Running it
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org)
+[![React](https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38bdf8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Local-first](https://img.shields.io/badge/data-local--first-6e56cf)](#-your-data)
+[![Shamsi calendar](https://img.shields.io/badge/calendar-Gregorian%20%7C%20Shamsi-10b981)](#-shamsi--persian-calendar)
+[![Tests](https://img.shields.io/badge/tests-Vitest%20%2B%20Playwright-f59e0b)](#-testing)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
+[Features](#-features) · [Screenshots](#-screenshots) · [Quick start](#-quick-start) · [Shamsi calendar](#-shamsi--persian-calendar) · [Architecture](#-architecture) · [Roadmap](#-roadmap)
+
+<img src="docs/screenshots/dashboard-dark.png" alt="Personal OS dashboard in dark mode: today's progress ring, a drag-and-drop timeline, unscheduled tasks, weekly goals and a focus timer" width="100%" />
+
+</div>
+
+---
+
+## Why
+
+Most productivity apps are either a rigid calendar or an endless to-do list, and both quietly punish you when life changes the plan. **Personal OS** treats the plan as something you adjust. It's built for a full-time self-development routine (learning, side projects, a startup, health, books, rest), and it helps you answer:
+
+- What am I supposed to do today, and what's next?
+- How much time did I actually spend, and where did it go?
+- Am I keeping a balance between learning, work, health and life?
+- What should I change next week?
+
+It optimises for **consistency, clarity, flexibility, realistic planning and long-term progress**, not for maximising checkmarks.
+
+## ✨ Features
+
+| | |
+|---|---|
+| 🗓️ **Flexible scheduling** | Drag tasks onto a timeline, drag blocks to other times or days, resize by dragging the edge, split a 2h task into 1h today and 1h tomorrow, merge sessions back. The task itself is never duplicated. |
+| ☀️ **Today** | Timeline on desktop, a list with large touch targets on phones, and an unscheduled pool on the side. Complete, start a timer, skip, reschedule, edit or delete right from each block. |
+| 📅 **Calendar** | Day, week and month views with drag & drop, click-to-create, resizing and keyboard shortcuts (`←/→`, `D/W/M`, `T`). |
+| 📊 **Week & month** | Per-day planned vs completed hours, weekly goal progress, reusable **week templates** (proposal → review → apply), monthly goals, milestones and weekly summaries. |
+| 🎯 **Goals** | Daily, weekly, monthly and long-term goals measured in hours, sessions, tasks, pages or custom units. Progress is tracked automatically from completed work, or logged manually. Long-term goals break down into milestones and tasks. |
+| ⏱️ **Time tracking** | Optional start / pause / resume / stop timer, manual entries and editable history. Planning and tracking stay separate. |
+| 🔁 **Recurring tasks** | Daily, weekly (custom days) or monthly. Each occurrence can be moved or skipped on its own, and nothing is back-filled into the past. |
+| 📈 **Analytics** | Planned vs completed, focused hours, "Where did my time go?", weekly trend, consistency, estimate-vs-actual variance and frequently moved tasks. |
+| 📝 **Reviews & habits** | Daily, weekly and monthly reviews (with the data shown next to your answers, and editable questions) plus a simple habit tracker with streaks. |
+| ⌘ **Command Center** | `⌘/Ctrl + K`: search, navigate, start timers, reschedule, and **Quick Add** in plain language, e.g. `React 2h tomorrow`, `Gym Thursday 18:00`, `Startup 3h Saturday #mvp !high`, `Weekly Review every sunday 18:00`. |
+| 🌙 **Light & dark** | Dark by default, with a one-click light/dark toggle, six accent colours and two density levels. |
+| 🧩 **Customisable** | Dashboard widgets, sidebar items, task defaults, priority names, timeline zoom, review questions, area and habit order, and a tag manager (rename, merge or delete tags). |
+| 📱 **Responsive** | Sidebar on desktop, collapsible rail on tablet, bottom navigation on phones. |
+| ♿ **Accessible** | Keyboard drag & drop, focus states, screen-reader labels and support for reduced motion. |
+
+## 📸 Screenshots
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/today-dark.png" alt="Today view with timeline and unscheduled tasks" /><br/><sub><b>Today</b>: timeline and unscheduled tasks</sub></td>
+    <td width="50%"><img src="docs/screenshots/calendar-week-dark.png" alt="Calendar week view with draggable blocks" /><br/><sub><b>Calendar</b>: drag, drop and resize</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/week-light.png" alt="Week board in light theme with goal progress" /><br/><sub><b>Week</b> (light theme): goals, day columns, templates</sub></td>
+    <td><img src="docs/screenshots/analytics-dark.png" alt="Analytics dashboard with charts" /><br/><sub><b>Analytics</b>: where the time actually went</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/shamsi-month.png" alt="Month calendar in the Shamsi (Solar Hijri) calendar with Persian day names and digits" /><br/><sub><b>Shamsi calendar</b>: Persian names and digits, week starts Saturday</sub></td>
+    <td><img src="docs/screenshots/dashboard-light.png" alt="Dashboard in light theme" /><br/><sub><b>Dashboard</b> (light theme)</sub></td>
+  </tr>
+</table>
+
+<p align="center"><img src="docs/screenshots/mobile-today.png" alt="Today view on a phone with bottom navigation" width="300" /><br/><sub><b>Mobile</b>: complete, time and reschedule from your phone</sub></p>
+
+## 🚀 Quick start
+
+Requires **Node.js 22.22+ or 24.15+**.
 
 ```bash
+git clone https://github.com/Mapl6/personal-os.git
+cd personal-os
 npm install
-npm run dev          # http://localhost:3000
+npm run dev
 ```
 
-On first launch an onboarding flow asks for your name, working days, hours, areas and weekly goals,
-then creates a default **Normal Week** template. Tick *Include example data* to explore with realistic
-projects, tasks, habits and three weeks of history (all dates are relative to today).
+Open <http://localhost:3000>. A short setup asks for your name, calendar (Gregorian or Shamsi), working days and hours, life areas and weekly goals, then creates a default **Normal Week** template. Turn on **Include example data** to explore with sample projects, tasks, habits and three weeks of history.
 
 | Script | What it does |
-| --- | --- |
-| `npm run dev` / `build` / `start` | Next.js dev server / production build / serve |
-| `npm run typecheck` | `tsc --noEmit` (strict) |
-| `npm run lint` | ESLint (Next + React Compiler rules) |
-| `npm test` | Vitest unit + React Testing Library component tests |
-| `npm run test:e2e` | Playwright end-to-end flows (desktop + mobile). Starts its own dev server on :3100 |
+|---|---|
+| `npm run dev` | Development server |
+| `npm run build` / `npm start` | Production build / serve |
+| `npm run typecheck` | Strict TypeScript check |
+| `npm run lint` | ESLint (Next.js + React Compiler rules) |
+| `npm test` | Vitest unit and React Testing Library component tests |
+| `npm run test:e2e` | Playwright end-to-end flows (desktop and mobile) |
 
-Data lives in **IndexedDB** in your browser. Export/import JSON and reset from **Settings → Data**.
+### Deploy
 
-## What's in the MVP
+It's a standard Next.js app, so it deploys to Vercel (or any Node host) with no extra configuration. There's no server database: each browser keeps its own data.
 
-- **Dashboard** — today's progress (planned / completed / remaining / tracked), schedule timeline,
-  unscheduled pool, weekly goals, current focus + next task, weekly quick stats.
-- **Today** — timeline (desktop) or large-target list (phone) on the left, unscheduled tasks on the
-  right; drag tasks in, drag blocks around or back out. Day navigation to plan tomorrow.
-- **Calendar** — day / week / month. Drag blocks between times and dates, drag the bottom edge to
-  resize, click an empty slot to create, `←/→`, `D/W/M`, `T` shortcuts.
-- **Week** — seven day columns with planned / completed hours and %, weekly goal progress, a week
-  summary, **apply template** (proposal → review → apply) and **carry over**.
-- **Month** — monthly goals, weekly summaries, projects, milestones, time distribution, daily heatmap.
-- **Tasks / Projects / Areas** — full CRUD, filters, detail pages with progress and time spent.
-- **Goals** — daily / weekly / monthly / long-term; hours, tasks, sessions, pages or custom metrics;
-  automatic (from completed work) or manual tracking; milestones with linked tasks.
-- **Time tracking** — optional start / pause / resume / stop timer, manual entries, editable history.
-  Planning and tracking stay separate.
-- **Habits**, **Reviews** (daily / weekly / monthly with data context), **Analytics** (planned vs
-  completed, focused hours, where did my time go, weekly trend, consistency, estimate variance).
-- **Command Center** (`⌘/Ctrl+K`) with **Quick Add**: `React 2h tomorrow`, `Gym Thursday 18:00`,
-  `Startup 3h Saturday #mvp !high`, `Weekly Review every sunday 18:00`. Ambiguous input opens the
-  pre-filled editor for confirmation. No AI needed.
-- **Rescheduling** — Tomorrow / Next available slot / Later this week / Next week / Custom, each
-  showing the concrete target before you confirm. Split a block into sessions; merge them back.
-- **Recurring tasks** — daily / weekly (custom days) / monthly; instances are materialised a few weeks
-  ahead, idempotently, never back-filled into the past.
-- **Notifications** — optional reminders (upcoming, starting, still-open, daily planning/review,
-  weekly review) while the app is open.
-- **Shamsi (Solar Hijri) calendar** — switch between Gregorian and Shamsi (شمسی): Jalali month
-  boundaries for month views, goals, analytics and monthly recurrence; a Jalali date picker; Persian or
-  English month/day names, Persian digits, 12/24h time. "Use Iranian defaults" sets Shamsi, Saturday
-  week start and a Saturday–Thursday working week. Dates are stored as Gregorian keys, so switching is
-  lossless. Quick Add understands `فردا`, `امروز`, Persian weekday names and Persian digits.
-- **Light & dark themes** — one-click toggle in the sidebar / mobile header, plus system mode.
-- **Customize** (Settings → Customize) — dashboard widgets (show/hide/reorder), sidebar navigation
-  (show/hide/reorder), default area & priority for new tasks, priority names, timeline zoom, show/hide
-  completed blocks, editable review questions, area and habit order, and a tag manager
-  (rename / merge / delete across all tasks).
-- **Settings** — week start, hours, time zone, date format, durations, working days, daily target,
-  notifications, theme (dark-first), accent, density, week templates, export / import / reset.
+## 🇮🇷 Shamsi / Persian calendar
 
-## Architecture
+Switch under **Settings → Calendar & language**, or pick it during setup:
+
+- **Solar Hijri (Shamsi / Jalali)** month boundaries apply everywhere: month views, monthly goals, analytics, reviews and monthly recurring tasks.
+- A **Shamsi date picker** replaces the browser's Gregorian one.
+- Month and day names in **Persian or English** (e.g. «مهر» or *Mehr*), **Persian digits** (۱۲۳), and 12h or 24h time.
+- **Use Iranian defaults** sets Shamsi, Persian names and digits, a Saturday week start and a Saturday–Thursday working week in one click.
+- **Quick Add understands Persian**: `ورزش ۲ ساعت فردا ۱۸:۰۰`, `کتاب شنبه`, `امروز`, `پس‌فردا`.
+- Conversion uses the browser's built-in `Intl` Persian calendar, so there's no extra dependency. Dates are always stored in Gregorian form, so switching calendars loses nothing.
+
+> **فارسی:** این برنامه از تقویم شمسی پشتیبانی می‌کند: نام ماه‌ها و روزها به فارسی، اعداد فارسی، شروع هفته از شنبه و انتخاب تاریخ شمسی. از مسیر «Settings → Calendar & language» فعالش کنید.
+
+## 🔒 Your data
+
+- Everything is stored **in your browser (IndexedDB)**. There are no accounts, no tracking and no server.
+- **Export and import** a complete JSON backup, or reset everything, from *Settings → Data*.
+- Storage sits behind a repository interface, so a PostgreSQL / API backend can be added later without touching the UI.
+
+## 🏗️ Architecture
+
+```mermaid
+flowchart LR
+  UI["App Router pages<br/>+ feature components"] -->|TanStack Query hooks| S["Services<br/>tasks · schedule · time · goals · …"]
+  S -->|DataStore interface| R[("IndexedDB<br/>(swappable)")]
+  S --> L["Pure logic<br/>analytics · recurrence · calendar · quick-add"]
+  UI --> L
+```
+
+- **Task vs. block.** A *task* is the work and a *schedule block* is when it's planned. One task can have many blocks, so moving, splitting and recurring never duplicate work. Moves are counted for insight but never shown as failures.
+- **One source of truth for time.** Completed blocks and timer entries are combined in one place, so goals and analytics never count the same time twice.
+- **Propose → confirm → apply.** Bulk changes (carrying work over, applying templates) are built as a list of proposed changes that you review first. A future AI planning assistant will plug into the same flow.
+- **No giant context.** Data lives in TanStack Query (optimistic updates for drag & drop), UI state lives in a tiny selector store, and all business logic lives in pure, tested functions.
 
 ```
 src/
-  app/                     Next.js App Router. Pages are thin Server Components that render features.
-  features/<feature>/      Client UI per feature (dashboard, today, calendar, week, month, tasks, …)
-  components/ui/           shadcn/ui-style primitives on Radix
-  components/layout/       Shell: sidebar, bottom nav, shortcuts, theme sync
-  components/shared/       Small shared pieces (area dot, stat, empty state, duration input…)
-  services/                Use-cases (task, schedule, time, goals, habits, reviews, templates, data)
-  repositories/            Storage abstraction: IndexedDB + in-memory implementations
-  lib/                     Pure logic: date, analytics, goals, recurrence, scheduling, quick-add
-  hooks/                   TanStack Query hooks, mutation helpers, clock
-  store/                   Tiny selector-based UI store (global dialogs) — no giant context
-  types/domain.ts          Zod schemas + types for every entity
-  tests/                   Vitest unit + RTL component tests
-e2e/                       Playwright flows
+  app/            Next.js App Router (thin pages)
+  features/       dashboard · today · calendar · week · month · tasks · goals · …
+  components/     ui (shadcn/ui on Radix) · layout · shared
+  services/       use-cases over the DataStore
+  repositories/   IndexedDB + in-memory implementations
+  lib/            date & calendar · analytics · recurrence · scheduling · quick-add
+  types/          Zod schemas for every entity
+e2e/              Playwright flows
 ```
 
-**Layers.** Components call *services*; services depend only on the `DataStore` interface
-(`repositories/types.ts`); all calculations live in pure functions under `lib/`. Swapping IndexedDB for
-PostgreSQL + an API means writing one new `DataStore` implementation (or a service layer that calls
-HTTP) — no component changes.
+**Stack:** Next.js 16 · React 19 · TypeScript · Tailwind CSS 4 · shadcn/ui (Radix) · dnd-kit · TanStack Query · Zod · React Hook Form · date-fns · Recharts · Lucide · Vitest · Testing Library · Playwright.
 
-**Task vs. block.** A `Task` is the work. A `ScheduleBlock` (task instance) is *when* it's planned.
-One task can have many blocks (1h today + 1h tomorrow). Moving, splitting, merging and recurring
-instances all operate on blocks, so the task is never duplicated. Blocks keep `originalDate` and a
-`rescheduleCount` for insight, shown neutrally.
+## 🧪 Testing
 
-**Time.** "Actual time" is computed once (`lib/analytics/work.ts`): completed blocks contribute their
-recorded actual duration; timer/manual entries contribute only when not attached to a completed block.
-Analytics and goals share it, so nothing is double counted.
+- **Unit and component tests (Vitest + React Testing Library):** scheduling, splitting and merging, rescheduling targets, recurrence, time tracking, goal progress, analytics, the Quick Add parser, the Jalali calendar and IndexedDB persistence.
+- **End-to-end tests (Playwright):** onboarding, quick add, create/complete with persistence, dragging onto the timeline, dragging between days, resizing, the timer, rescheduling, templates, goal progress, the Shamsi calendar, theme, customisation and the mobile layout.
 
-**Proposals, not silent changes.** Bulk operations (carry-over, applying a template) produce a list of
-`PlanChange`s (`lib/planning/changes.ts`) that the user reviews before `schedule.applyChanges` runs.
-A future AI planning assistant plugs into exactly this: *propose → confirm → apply*.
+## 🗺️ Roadmap
 
-**State.** Server state via TanStack Query (per-collection and per-date-range keys, optimistic updates
-for drag & drop, invalidation by group). UI state (which dialog is open) in a small external store with
-selectors. Date-dependent rendering happens only on the client to avoid hydration mismatches.
+- [x] **MVP:** dashboard, today, week, month, calendar, tasks, projects, drag & drop, time tracking, goals, analytics, local persistence
+- [x] Habits, reviews, notifications, recurring tasks
+- [x] Shamsi calendar, light theme, customisation
+- [ ] Installable PWA with background notifications
+- [ ] Optional backend: accounts, PostgreSQL and sync across devices
+- [ ] AI planning assistant: "Plan my week", "I only have 4 hours today", always propose → confirm → apply
 
-**Errors.** Every mutation goes through `useAction` / `perform`, which provide pending state, success
-toasts (often with **Undo**) and an error toast. Nothing fails silently.
+## 🤝 Contributing
 
-## Roadmap
+Issues and pull requests are welcome. Before opening a PR, run:
 
-- **Phase 2** (largely included): habits, reviews, notifications, recurring tasks, deeper analytics.
-- **Phase 3:** backend + auth, PostgreSQL `DataStore`, cloud sync, installable PWA with a service
-  worker for background notifications.
-- **Phase 4:** AI assistant ("Plan my week", "I only have 4 hours today") producing `PlanChange`
-  proposals through the existing confirm/apply flow.
+```bash
+npm run typecheck && npm run lint && npm test && npm run test:e2e
+```
+
+## 📄 License
+
+[MIT](LICENSE) © 2026 Mahdi
