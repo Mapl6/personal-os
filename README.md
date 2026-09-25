@@ -13,6 +13,7 @@ Plan → Execute → Track → Review → Adjust. Plans are hypotheses: moving a
 [![Local-first](https://img.shields.io/badge/data-local--first-6e56cf)](#-your-data)
 [![Shamsi calendar](https://img.shields.io/badge/calendar-Gregorian%20%7C%20Shamsi-10b981)](#-shamsi--persian-calendar)
 [![Tests](https://img.shields.io/badge/tests-Vitest%20%2B%20Playwright-f59e0b)](#-testing)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 [Features](#-features) · [Screenshots](#-screenshots) · [Quick start](#-quick-start) · [Shamsi calendar](#-shamsi--persian-calendar) · [Architecture](#-architecture) · [Roadmap](#-roadmap)
 
@@ -166,3 +167,7 @@ Issues and pull requests are welcome. Before opening a PR, run:
 ```bash
 npm run typecheck && npm run lint && npm test && npm run test:e2e
 ```
+
+## 📄 License
+
+[MIT](LICENSE) © 2026 Mahdi
