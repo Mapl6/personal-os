@@ -1,8 +1,9 @@
 "use client";
 
+import { DateField } from "@/components/shared/date-field";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as React from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Field } from "@/components/shared/field";
 import { Button } from "@/components/ui/button";
@@ -51,7 +52,7 @@ export function ProjectDialog({
     },
     { invalidate: ["projects"], success: project ? "Project saved" : "Project created", onSuccess: () => onOpenChange(false) },
   );
-  const { register, handleSubmit, formState } = form;
+  const { register, handleSubmit, control, formState } = form;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -83,7 +84,7 @@ export function ProjectDialog({
                 </NativeSelect>
               </Field>
               <Field label="Deadline" htmlFor="pj-deadline">
-                <Input id="pj-deadline" type="date" {...register("deadline")} />
+                <Controller control={control} name="deadline" render={({ field }) => <DateField id="pj-deadline" value={field.value} onChange={field.onChange} />} />
               </Field>
             </div>
           </DialogBody>

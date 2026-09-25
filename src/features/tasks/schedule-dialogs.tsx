@@ -1,5 +1,6 @@
 "use client";
 
+import { DateField } from "@/components/shared/date-field";
 import { ArrowRight, CalendarArrowUp } from "lucide-react";
 import * as React from "react";
 import { DurationInput } from "@/components/shared/duration-input";
@@ -21,6 +22,7 @@ import {
   relativeDayLabel,
   toDateKey,
   type WeekdayIndex,
+  timeValue,
 } from "@/lib/date";
 import type { PlanChange } from "@/lib/planning/changes";
 import { computeRescheduleTargets, type RescheduleOption } from "@/lib/scheduling/slots";
@@ -55,7 +57,7 @@ function RescheduleContent({ id }: { id: string }) {
   const [choice, setChoice] = React.useState<RescheduleOption>("tomorrow");
   const today = now ? toDateKey(now) : "";
   const [customDate, setCustomDate] = React.useState(today ? addDaysKey(today, 1) : "");
-  const [customTime, setCustomTime] = React.useState(block?.startMinutes != null ? formatTime(block.startMinutes) : "");
+  const [customTime, setCustomTime] = React.useState(block?.startMinutes != null ? timeValue(block.startMinutes) : "");
 
   const targets = React.useMemo(() => {
     if (!block || !now) return [];
@@ -110,7 +112,7 @@ function RescheduleContent({ id }: { id: string }) {
         {choice === "custom" && (
           <div className="mt-3 grid grid-cols-2 gap-3">
             <Field label="Date" htmlFor="rs-date">
-              <Input id="rs-date" type="date" value={customDate} onChange={(e) => setCustomDate(e.target.value)} />
+              <DateField id="rs-date" value={customDate} onChange={setCustomDate} />
             </Field>
             <Field label="Time" htmlFor="rs-time" hint="Empty = anytime">
               <Input id="rs-time" type="time" step={900} value={customTime} onChange={(e) => setCustomTime(e.target.value)} />
@@ -173,7 +175,7 @@ function SplitContent({ id }: { id: string }) {
   const { block, task } = useBlock(id);
   const [first, setFirst] = React.useState(() => Math.max(15, Math.round((block?.durationMinutes ?? 60) / 2 / 15) * 15));
   const [date, setDate] = React.useState(block ? addDaysKey(block.date, 1) : "");
-  const [time, setTime] = React.useState(block?.startMinutes != null ? formatTime(block.startMinutes) : "");
+  const [time, setTime] = React.useState(block?.startMinutes != null ? timeValue(block.startMinutes) : "");
   if (!block || !task) return null;
   const rest = block.durationMinutes - first;
   const valid = first >= 5 && rest >= 5 && !!date;
@@ -195,7 +197,7 @@ function SplitContent({ id }: { id: string }) {
         </div>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Date" htmlFor="split-date">
-            <Input id="split-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+            <DateField id="split-date" value={date} onChange={setDate} />
           </Field>
           <Field label="Time" htmlFor="split-time" hint="Empty = anytime">
             <Input id="split-time" type="time" step={900} value={time} onChange={(e) => setTime(e.target.value)} />
@@ -246,7 +248,7 @@ export function BlockEditorDialog() {
 function BlockEditorContent({ id }: { id: string }) {
   const { block, task, blocks } = useBlock(id);
   const [date, setDate] = React.useState(block?.date ?? "");
-  const [time, setTime] = React.useState(block?.startMinutes != null ? formatTime(block.startMinutes) : "");
+  const [time, setTime] = React.useState(block?.startMinutes != null ? timeValue(block.startMinutes) : "");
   const [duration, setDuration] = React.useState(block?.durationMinutes ?? 60);
   const [actual, setActual] = React.useState(block?.actualMinutes ?? block?.durationMinutes ?? 60);
   if (!block || !task) return null;
@@ -275,7 +277,7 @@ function BlockEditorContent({ id }: { id: string }) {
       <DialogBody className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <Field label="Date" htmlFor="be-date">
-            <Input id="be-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+            <DateField id="be-date" value={date} onChange={setDate} />
           </Field>
           <Field label="Start" htmlFor="be-time" hint="Empty = anytime">
             <Input id="be-time" type="time" step={900} value={time} onChange={(e) => setTime(e.target.value)} />

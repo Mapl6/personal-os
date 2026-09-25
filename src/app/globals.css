@@ -95,6 +95,9 @@
 .dark[data-accent="violet"] { --primary: oklch(0.72 0.15 300); --ring: oklch(0.72 0.15 300); }
 
 html { font-size: 15px; }
+/* Letter-spacing breaks Persian letter joining in (uppercase) labels. */
+html[data-date-lang="fa"] .tracking-wider,
+html[data-date-lang="fa"] .tracking-wide { letter-spacing: 0; }
 html[data-density="compact"] { font-size: 13.5px; --hour-height: 48px; }
 
 @theme inline {

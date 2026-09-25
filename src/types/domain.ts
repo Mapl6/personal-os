@@ -271,6 +271,68 @@ export type WeekTemplate = z.infer<typeof weekTemplateSchema>;
 export const ACCENTS = ["indigo", "emerald", "sky", "amber", "rose", "violet"] as const;
 export type Accent = (typeof ACCENTS)[number];
 
+export const CALENDAR_SYSTEMS = ["gregorian", "jalali"] as const;
+export type CalendarSystem = (typeof CALENDAR_SYSTEMS)[number];
+
+export const calendarSettingsSchema = z.object({
+  /** Gregorian or Solar Hijri (Shamsi / Jalali). Affects display, month boundaries and date pickers. */
+  system: z.enum(CALENDAR_SYSTEMS).default("gregorian"),
+  /** Language used for month and weekday names. */
+  language: z.enum(["en", "fa"]).default("en"),
+  digits: z.enum(["latin", "persian"]).default("latin"),
+  timeFormat: z.enum(["24h", "12h"]).default("24h"),
+});
+export type CalendarSettings = z.infer<typeof calendarSettingsSchema>;
+export const DEFAULT_CALENDAR: CalendarSettings = calendarSettingsSchema.parse({});
+
+export const DASHBOARD_WIDGETS = [
+  "progress",
+  "schedule",
+  "weeklyGoals",
+  "monthlyGoals",
+  "stats",
+  "focus",
+  "next",
+  "habits",
+  "areas",
+] as const;
+export type DashboardWidget = (typeof DASHBOARD_WIDGETS)[number];
+
+export const reviewQuestionSchema = z.object({
+  id: z.string().min(1),
+  label: z.string().min(1).max(200),
+});
+export type ReviewQuestionSetting = z.infer<typeof reviewQuestionSchema>;
+
+export const customizationSchema = z.object({
+  /** Sidebar order (hrefs). Missing items are appended in default order. */
+  navOrder: z.array(z.string()).default([]),
+  hiddenNav: z.array(z.string()).default([]),
+  dashboardWidgets: z
+    .array(z.object({ id: z.enum(DASHBOARD_WIDGETS), visible: z.boolean() }))
+    .default(DASHBOARD_WIDGETS.map((id) => ({ id, visible: id !== "monthlyGoals" }))),
+  /** Custom review questions per type; null = built-in defaults. */
+  reviewQuestions: z
+    .object({
+      daily: z.array(reviewQuestionSchema),
+      weekly: z.array(reviewQuestionSchema),
+      monthly: z.array(reviewQuestionSchema),
+    })
+    .nullable()
+    .default(null),
+  defaultAreaId: z.string().nullable().default(null),
+  defaultPriority: z.enum(PRIORITIES).default("medium"),
+  /** Timeline zoom: pixel height of one hour. */
+  hourHeight: z.number().int().min(32).max(140).default(56),
+  /** Show the anytime row and completed blocks in timelines. */
+  showCompletedInTimeline: z.boolean().default(true),
+  /** Custom display names for priorities. */
+  priorityLabels: z
+    .object({ low: z.string().max(20), medium: z.string().max(20), high: z.string().max(20), critical: z.string().max(20) })
+    .default({ low: "Low", medium: "Medium", high: "High", critical: "Critical" }),
+});
+export type Customization = z.infer<typeof customizationSchema>;
+
 export const settingsSchema = z.object({
   id: z.literal("settings"),
   name: z.string().max(60).default(""),
@@ -287,6 +349,8 @@ export const settingsSchema = z.object({
   theme: z.enum(["dark", "light", "system"]).default("dark"),
   accent: z.enum(ACCENTS).default("indigo"),
   density: z.enum(["comfortable", "compact"]).default("comfortable"),
+  calendar: calendarSettingsSchema.default(DEFAULT_CALENDAR),
+  customization: customizationSchema.default(customizationSchema.parse({})),
   notifications: z
     .object({
       enabled: z.boolean().default(false),

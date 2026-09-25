@@ -1,5 +1,6 @@
 "use client";
 
+import { DateField } from "@/components/shared/date-field";
 import { CalendarArrowUp, Inbox, Pencil, Play, Plus, Trash2 } from "lucide-react";
 import * as React from "react";
 import { DurationInput } from "@/components/shared/duration-input";
@@ -78,7 +79,7 @@ export function TaskScheduleSection({ task }: { task: Task }) {
         <div className="mt-3 flex flex-wrap items-end gap-2 border-t border-border pt-3">
           <label className="space-y-1">
             <span className="text-xs text-muted-foreground">Date</span>
-            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-8 w-36" />
+            <DateField value={date} onChange={setDate} className="h-8 w-44" aria-label="Date" />
           </label>
           <label className="space-y-1">
             <span className="text-xs text-muted-foreground">Start</span>
@@ -159,7 +160,7 @@ export function TaskTimeSection({ task }: { task: Task }) {
       <div className="flex flex-wrap items-end gap-2">
         <label className="space-y-1">
           <span className="text-xs text-muted-foreground">Date</span>
-          <Input type="date" value={manualDate} onChange={(e) => setManualDate(e.target.value)} className="h-8 w-36" />
+          <DateField value={manualDate} onChange={setManualDate} className="h-8 w-44" aria-label="Date" />
         </label>
         <div className="w-44">
           <span className="text-xs text-muted-foreground">Duration</span>

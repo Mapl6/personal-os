@@ -115,6 +115,8 @@ function ReviewForm({ type, periodStart, existing }: { type: ReviewType; periodS
   const [answers, setAnswers] = React.useState<Record<string, string>>(existing?.answers ?? {});
   const [energy, setEnergy] = React.useState<number | null>(existing?.energy ?? null);
   const [dirty, setDirty] = React.useState(false);
+  const { settings } = useSettings();
+  const questions = settings.customization.reviewQuestions?.[type] ?? REVIEW_QUESTIONS[type];
   const save = useAction(() => getServices().reviews.save({ type, periodStart, answers, energy }), {
     invalidate: ["reviews"],
     success: "Review saved",
@@ -148,12 +150,12 @@ function ReviewForm({ type, periodStart, existing }: { type: ReviewType; periodS
               </div>
             </Field>
           )}
-          {REVIEW_QUESTIONS[type].map((q) => (
+          {questions.map((q) => (
             <Field key={q.id} label={q.label} htmlFor={`rq-${q.id}`}>
               <Textarea
                 id={`rq-${q.id}`}
                 rows={q.id === "notes" ? 3 : 2}
-                placeholder={q.placeholder}
+                placeholder={"placeholder" in q ? (q.placeholder as string | undefined) : undefined}
                 value={answers[q.id] ?? ""}
                 onChange={(e) => {
                   setAnswers((a) => ({ ...a, [q.id]: e.target.value }));

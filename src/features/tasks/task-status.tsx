@@ -1,4 +1,7 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
+import { usePriorityLabel } from "@/hooks/queries";
 import type { Priority, TaskStatus } from "@/types/domain";
 
 const STATUS: Record<TaskStatus, { label: string; variant: "default" | "primary" | "success" | "warning" | "info" | "outline" }> = {
@@ -17,7 +20,8 @@ export function StatusBadge({ status }: { status: TaskStatus }) {
 }
 
 export function PriorityBadge({ priority }: { priority: Priority }) {
+  const label = usePriorityLabel();
   if (priority === "medium") return null;
   const variant = priority === "critical" ? "danger" : priority === "high" ? "warning" : "outline";
-  return <Badge variant={variant}>{priority}</Badge>;
+  return <Badge variant={variant}>{label(priority)}</Badge>;
 }

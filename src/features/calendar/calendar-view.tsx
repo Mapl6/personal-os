@@ -94,9 +94,10 @@ export function CalendarView({ initialView, initialDate }: { initialView?: Calen
       : view === "week"
         ? `${formatDateKey(range.from, "MMM d")} – ${formatDateKey(range.to, "MMM d, yyyy")}`
         : formatDateKey(date, "MMMM yyyy");
-  const data = blocks.data ?? [];
+  const data = (blocks.data ?? []).filter((b) => settings.customization.showCompletedInTimeline || b.status !== "completed");
   const { gridStart, gridEnd } = computeGridRange(data, settings.dayStartMinutes, settings.dayEndMinutes);
-  const hourHeight = settings.density === "compact" ? 44 : view === "day" ? 56 : 48;
+  const zoom = settings.customization.hourHeight * (settings.density === "compact" ? 0.8 : 1);
+  const hourHeight = Math.round(view === "day" ? zoom : zoom * 0.86);
   const nowMinutes = now ? minutesOfDay(now) : 0;
   const running = timer.data?.running?.blockId ?? null;
 
@@ -140,7 +141,7 @@ export function CalendarView({ initialView, initialDate }: { initialView?: Calen
       {view === "month" ? (
         <MonthGrid
           grid={range}
-          month={date.slice(0, 7)}
+          anchor={date}
           blocks={data}
           lookups={lookups}
           today={today}

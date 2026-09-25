@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input, NativeSelect } from "@/components/ui/input";
 import { useAction } from "@/hooks/use-action";
 import { useAreas, useSettings, useTemplates } from "@/hooks/queries";
-import { WEEKDAY_NAMES, formatTime, parseTime } from "@/lib/date";
+import { parseTime, timeValue, weekdayName } from "@/lib/date";
 import { createId } from "@/lib/utils/id";
 import { getServices } from "@/services";
 import type { TemplateItem, WeekTemplate } from "@/types/domain";
@@ -55,7 +55,7 @@ function TemplateCard({ template }: { template: WeekTemplate }) {
           return (
             <div key={day}>
               <div className="mb-1 flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{WEEKDAY_NAMES[day]}</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{weekdayName(day)}</span>
                 <Button
                   size="xs"
                   variant="ghost"
@@ -76,7 +76,7 @@ function TemplateCard({ template }: { template: WeekTemplate }) {
                         <option value="">No area</option>
                         {(areas.data ?? []).map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
                       </NativeSelect>
-                      <Input className="h-8" type="time" step={900} value={it.startMinutes !== null ? formatTime(it.startMinutes) : ""} onChange={(e) => patch(it.id, { startMinutes: e.target.value ? parseTime(e.target.value) : null })} aria-label="Start time" />
+                      <Input className="h-8" type="time" step={900} value={it.startMinutes !== null ? timeValue(it.startMinutes) : ""} onChange={(e) => patch(it.id, { startMinutes: e.target.value ? parseTime(e.target.value) : null })} aria-label="Start time" />
                       <DurationInput value={it.durationMinutes} onChange={(m) => patch(it.id, { durationMinutes: m })} presets={[60, 120, 180]} />
                     </li>
                   ))}

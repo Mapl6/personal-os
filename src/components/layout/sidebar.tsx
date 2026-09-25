@@ -10,7 +10,9 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { TimerWidget } from "@/features/time-tracking/timer-widget";
 import { cn } from "@/lib/utils/cn";
 import { ui } from "@/store/ui-store";
-import { NAV_ITEMS, isActive } from "./nav-items";
+import { useSettings } from "@/hooks/queries";
+import { isActive, orderNavItems } from "./nav-items";
+import { ThemeToggle } from "./theme-toggle";
 
 const COLLAPSE_KEY = "pos-sidebar-collapsed";
 
@@ -35,6 +37,8 @@ function Brand({ collapsed }: { collapsed: boolean }) {
  */
 export function Sidebar() {
   const pathname = usePathname();
+  const { settings } = useSettings();
+  const navItems = orderNavItems(settings.customization.navOrder, settings.customization.hiddenNav);
   const [collapsedPref, setCollapsedPref] = React.useState<boolean | null>(null);
 
   React.useEffect(() => {
@@ -83,7 +87,7 @@ export function Sidebar() {
       </div>
 
       <nav className="mt-3 flex-1 space-y-0.5 overflow-y-auto px-2 scrollbar-thin">
-        {NAV_ITEMS.map((item) => {
+        {navItems.map((item) => {
           const active = isActive(pathname, item.href);
           const link = (
             <Link
@@ -117,8 +121,9 @@ export function Sidebar() {
       <div className={cn("hidden px-2 pb-2", !collapsed && "lg:block", collapsedPref === false && "md:block")}>
         <TimerWidget variant="sidebar" />
       </div>
-      <div className="px-2">
-        <Button variant="ghost" size="sm" className="w-full justify-center" onClick={toggle} aria-label="Toggle sidebar">
+      <div className={cn("flex gap-1 px-2", collapsed ? "flex-col" : "flex-col lg:flex-row", collapsedPref === false && "md:flex-row")}>
+        <ThemeToggle className="flex-1" />
+        <Button variant="ghost" size="sm" className="flex-1 justify-center" onClick={toggle} aria-label="Toggle sidebar">
           {collapsedPref === null ? (
             <>
               <ChevronsRight className="lg:hidden" />

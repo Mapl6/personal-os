@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input, NativeSelect } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAllBlocks } from "@/hooks/queries";
+import { useAllBlocks, usePriorityLabel } from "@/hooks/queries";
 import { useToday } from "@/hooks/use-now";
 import { formatDuration, relativeDayLabel } from "@/lib/date";
 import { describeRecurrence } from "@/lib/recurrence";
@@ -27,6 +27,7 @@ const PRIORITY_RANK = { critical: 0, high: 1, medium: 2, low: 3 } as const;
 export function TasksView({ projectId, areaId, embedded }: { projectId?: string; areaId?: string; embedded?: boolean }) {
   const lookups = useLookups();
   const blocks = useAllBlocks();
+  const priorityLabel = usePriorityLabel();
   const today = useToday() ?? "";
   const [query, setQuery] = React.useState("");
   const [status, setStatus] = React.useState<StatusFilter>("open");
@@ -121,7 +122,7 @@ export function TasksView({ projectId, areaId, embedded }: { projectId?: string;
         <NativeSelect value={priority} onChange={(e) => setPriority(e.target.value)} className="w-auto" aria-label="Priority filter">
           <option value="">Any priority</option>
           {PRIORITIES.map((p) => (
-            <option key={p} value={p}>{p}</option>
+            <option key={p} value={p}>{priorityLabel(p)}</option>
           ))}
         </NativeSelect>
         <NativeSelect value={sort} onChange={(e) => setSort(e.target.value as typeof sort)} className="w-auto" aria-label="Sort by">

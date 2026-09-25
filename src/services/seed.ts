@@ -73,6 +73,7 @@ export interface WorkspaceSetup {
   weeklyGoals: WeeklyGoalSetup[];
   includeExamples: boolean;
   timeZone?: string;
+  calendar?: "gregorian" | "jalali";
 }
 
 /** Onboarding: creates areas, weekly goals, the "Normal Week" template and (optionally) example data. */
@@ -83,6 +84,9 @@ export async function setupWorkspace(services: Services, setup: WorkspaceSetup, 
     dayStartMinutes: setup.dayStartMinutes,
     dayEndMinutes: setup.dayEndMinutes,
     timeZone: setup.timeZone ?? "UTC",
+    ...(setup.calendar === "jalali"
+      ? { calendar: { system: "jalali", language: "fa", digits: "persian", timeFormat: "24h" }, weekStartsOn: 6 as const }
+      : {}),
   });
 
   const areas: Area[] = [];

@@ -27,6 +27,7 @@ export function Onboarding() {
   const [areas, setAreas] = React.useState(DEFAULT_AREAS.map((a) => a.name));
   const [goals, setGoals] = React.useState<WeeklyGoalSetup[]>(DEFAULT_WEEKLY_GOALS);
   const [examples, setExamples] = React.useState(true);
+  const [calendar, setCalendar] = React.useState<"gregorian" | "jalali">("gregorian");
 
   const finish = useAction(
     () =>
@@ -39,6 +40,7 @@ export function Onboarding() {
         weeklyGoals: goals.filter((g) => areas.includes(g.areaName)),
         includeExamples: examples,
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        calendar,
       }),
     { invalidate: ["all"], success: "You're all set. Plans are hypotheses — adjust freely." },
   );
@@ -69,6 +71,28 @@ export function Onboarding() {
             <Field label="What should we call you?" htmlFor="ob-name">
               <Input id="ob-name" autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
             </Field>
+            <Field label="Calendar">
+              <div className="flex gap-1" role="radiogroup" aria-label="Calendar">
+                {([["gregorian", "Gregorian"], ["jalali", "Shamsi · شمسی"]] as const).map(([v, l]) => (
+                  <Button
+                    key={v}
+                    type="button"
+                    size="sm"
+                    role="radio"
+                    aria-checked={calendar === v}
+                    variant={calendar === v ? "default" : "secondary"}
+                    className="flex-1"
+                    onClick={() => {
+                      setCalendar(v);
+                      // Iranian working week: Saturday–Thursday, Friday off.
+                      setDays(v === "jalali" ? [6, 0, 1, 2, 3, 4] : [1, 2, 3, 4, 5, 6]);
+                    }}
+                  >
+                    {l}
+                  </Button>
+                ))}
+              </div>
+            </Field>
           </div>
         )}
 
@@ -76,7 +100,7 @@ export function Onboarding() {
           <div className="space-y-4">
             <h2 className="text-lg font-semibold">Which days do you work on your routine?</h2>
             <p className="text-sm text-muted-foreground">Used for consistency stats and for finding free slots. Rest days count as rest, not as misses.</p>
-            <WeekdayPicker value={days} onChange={setDays} />
+            <WeekdayPicker value={days} onChange={setDays} weekStartsOn={calendar === "jalali" ? 6 : 1} />
           </div>
         )}
 

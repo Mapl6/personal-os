@@ -10,14 +10,20 @@ import { Onboarding } from "@/features/onboarding/onboarding";
 import { BlockEditorDialog, RescheduleDialog, RolloverDialog, SplitDialog } from "@/features/tasks/schedule-dialogs";
 import { TaskEditorDialog } from "@/features/tasks/task-editor-dialog";
 import { useSettings } from "@/hooks/queries";
+import { setCalendarConfig } from "@/lib/date";
 import { ui } from "@/store/ui-store";
 import { BottomNav } from "./bottom-nav";
 import { GlobalShortcuts } from "./shortcuts";
 import { Sidebar } from "./sidebar";
 import { ThemeSync } from "./theme-sync";
+import { ThemeToggle } from "./theme-toggle";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { settings, isLoading, isError, error } = useSettings();
+  // Calendar system / language / digits drive every formatted date. Applied
+  // synchronously so the very first render already uses them.
+  setCalendarConfig({ ...settings.calendar, dateFormat: settings.dateFormat });
+  const calendarKey = JSON.stringify(settings.calendar);
 
   if (isError) {
     return (
@@ -62,6 +68,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-background/90 px-4 py-2.5 backdrop-blur md:hidden">
           <span className="text-sm font-semibold">Personal OS</span>
           <div className="flex gap-1">
+            <ThemeToggle />
             <Button size="icon-sm" variant="ghost" onClick={() => ui.openCommand()} aria-label="Open command center">
               <Command />
             </Button>
@@ -70,7 +77,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </Button>
           </div>
         </header>
-        <main id="main" className="mx-auto w-full max-w-[1440px] flex-1 px-4 pb-36 pt-5 md:px-6 md:pb-10 lg:px-8">
+        <main key={calendarKey} id="main" className="mx-auto w-full max-w-[1440px] flex-1 px-4 pb-36 pt-5 md:px-6 md:pb-10 lg:px-8">
           {children}
         </main>
       </div>

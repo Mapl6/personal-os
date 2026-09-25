@@ -31,6 +31,13 @@ export function useSettings() {
   return { ...q, settings: q.data ?? DEFAULT_SETTINGS };
 }
 
+/** Display label for a priority, honouring user-defined names. */
+export function usePriorityLabel() {
+  const { settings } = useSettings();
+  const labels = settings.customization.priorityLabels;
+  return (p: keyof typeof labels) => labels[p] || p;
+}
+
 export function useAreas() {
   return useQuery({
     queryKey: qk.areas,

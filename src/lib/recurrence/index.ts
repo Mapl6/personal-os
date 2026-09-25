@@ -1,6 +1,15 @@
-import { diffDays, fromDateKey, daysInRange, weekdayOf, type DateRange, type DateKey } from "@/lib/date";
+import {
+  dayOfMonth,
+  daysInMonth,
+  daysInRange,
+  diffDays,
+  monthsBetween,
+  weekdayName,
+  weekdayOf,
+  type DateKey,
+  type DateRange,
+} from "@/lib/date";
 import type { Recurrence } from "@/types/domain";
-import { differenceInCalendarMonths, getDate, lastDayOfMonth } from "date-fns";
 
 /** Dates within `range` on which the recurrence produces an occurrence. */
 export function occurrencesInRange(recurrence: Recurrence, range: DateRange): DateKey[] {
@@ -24,19 +33,19 @@ export function occursOn(recurrence: Recurrence, day: DateKey): boolean {
       return weeks % interval === 0;
     }
     case "monthly": {
-      const date = fromDateKey(day);
-      const months = differenceInCalendarMonths(date, fromDateKey(recurrence.startDate));
+      // Month arithmetic follows the active calendar (Gregorian or Shamsi).
+      const months = monthsBetween(recurrence.startDate, day);
       if (months % interval !== 0) return false;
-      const wanted = recurrence.dayOfMonth ?? getDate(fromDateKey(recurrence.startDate));
+      const wanted = recurrence.dayOfMonth ?? dayOfMonth(recurrence.startDate);
       // Clamp to month length so "31st" still happens in short months.
-      const effective = Math.min(wanted, getDate(lastDayOfMonth(date)));
-      return getDate(date) === effective;
+      const effective = Math.min(wanted, daysInMonth(day));
+      return dayOfMonth(day) === effective;
     }
   }
 }
 
 export function describeRecurrence(recurrence: Recurrence): string {
-  const names = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const names = [0, 1, 2, 3, 4, 5, 6].map((d) => weekdayName(d, "short"));
   const every = recurrence.interval > 1 ? `Every ${recurrence.interval} ` : "Every ";
   switch (recurrence.frequency) {
     case "daily":
@@ -48,6 +57,6 @@ export function describeRecurrence(recurrence: Recurrence): string {
       return `${recurrence.interval > 1 ? `${every}weeks` : "Weekly"} · ${days}`;
     }
     case "monthly":
-      return `${recurrence.interval > 1 ? `${every}months` : "Monthly"} · day ${recurrence.dayOfMonth ?? getDate(fromDateKey(recurrence.startDate))}`;
+      return `${recurrence.interval > 1 ? `${every}months` : "Monthly"} · day ${recurrence.dayOfMonth ?? dayOfMonth(recurrence.startDate)}`;
   }
 }

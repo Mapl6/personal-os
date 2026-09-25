@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Label } from "@/components/ui/input";
+import { weekdayName } from "@/lib/date";
 import { cn } from "@/lib/utils/cn";
 
 export function Field({
@@ -43,8 +44,6 @@ export function WeekdayPicker({
   weekStartsOn?: number;
   label?: string;
 }) {
-  const names = ["S", "M", "T", "W", "T", "F", "S"];
-  const full = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   const order = Array.from({ length: 7 }, (_, i) => (i + weekStartsOn) % 7);
   return (
     <div role="group" aria-label={label} className="flex gap-1">
@@ -55,14 +54,14 @@ export function WeekdayPicker({
             key={d}
             type="button"
             aria-pressed={on}
-            aria-label={full[d]}
+            aria-label={weekdayName(d)}
             onClick={() => onChange(on ? value.filter((x) => x !== d) : [...value, d].sort())}
             className={cn(
               "size-8 rounded-md border text-xs font-medium transition-colors",
               on ? "border-primary/50 bg-primary/15 text-primary" : "border-border text-muted-foreground hover:bg-accent",
             )}
           >
-            {names[d]}
+            {weekdayName(d, "narrow")}
           </button>
         );
       })}

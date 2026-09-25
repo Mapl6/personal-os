@@ -44,3 +44,13 @@ export const MOBILE_PRIMARY = ["/", "/today", "/week", "/tasks"];
 export function isActive(pathname: string, href: string) {
   return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 }
+
+/** Applies the user's order + visibility. Settings can never be hidden. */
+export function orderNavItems(order: string[], hidden: string[]): NavItem[] {
+  const byHref = new Map(NAV_ITEMS.map((n) => [n.href, n]));
+  const ordered = [
+    ...order.map((h) => byHref.get(h)).filter((n): n is NavItem => !!n),
+    ...NAV_ITEMS.filter((n) => !order.includes(n.href)),
+  ];
+  return ordered.filter((n) => n.href === "/settings" || !hidden.includes(n.href));
+}

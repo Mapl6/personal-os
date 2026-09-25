@@ -14,7 +14,7 @@ export function createHabitService(ctx: ServiceContext) {
         habitSchema.parse({ id: createId("habit"), color: "slate", ...input, archived: false, order: count, createdAt: iso() }),
       );
     },
-    async update(id: string, patch: Partial<HabitInput & { archived: boolean }>): Promise<Habit> {
+    async update(id: string, patch: Partial<HabitInput & { archived: boolean; order: number }>): Promise<Habit> {
       const habit = await must(store.habits.get(id), "Habit");
       return store.habits.put(habitSchema.parse({ ...habit, ...patch }));
     },
