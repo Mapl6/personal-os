@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Personal OS
 
-## Getting Started
+A private, local-first operating system for planning, executing, tracking and reviewing a full-time
+personal development routine — frontend learning, startup + AI work, health, books, rest.
 
-First, run the development server:
+> **Plan → Execute → Track → Review → Adjust.** Plans are hypotheses. Moving a task is normal,
+> never a failure.
+
+## Running it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev          # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+On first launch an onboarding flow asks for your name, working days, hours, areas and weekly goals,
+then creates a default **Normal Week** template. Tick *Include example data* to explore with realistic
+projects, tasks, habits and three weeks of history (all dates are relative to today).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Script | What it does |
+| --- | --- |
+| `npm run dev` / `build` / `start` | Next.js dev server / production build / serve |
+| `npm run typecheck` | `tsc --noEmit` (strict) |
+| `npm run lint` | ESLint (Next + React Compiler rules) |
+| `npm test` | Vitest unit + React Testing Library component tests |
+| `npm run test:e2e` | Playwright end-to-end flows (desktop + mobile). Starts its own dev server on :3100 |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Data lives in **IndexedDB** in your browser. Export/import JSON and reset from **Settings → Data**.
 
-## Learn More
+## What's in the MVP
 
-To learn more about Next.js, take a look at the following resources:
+- **Dashboard** — today's progress (planned / completed / remaining / tracked), schedule timeline,
+  unscheduled pool, weekly goals, current focus + next task, weekly quick stats.
+- **Today** — timeline (desktop) or large-target list (phone) on the left, unscheduled tasks on the
+  right; drag tasks in, drag blocks around or back out. Day navigation to plan tomorrow.
+- **Calendar** — day / week / month. Drag blocks between times and dates, drag the bottom edge to
+  resize, click an empty slot to create, `←/→`, `D/W/M`, `T` shortcuts.
+- **Week** — seven day columns with planned / completed hours and %, weekly goal progress, a week
+  summary, **apply template** (proposal → review → apply) and **carry over**.
+- **Month** — monthly goals, weekly summaries, projects, milestones, time distribution, daily heatmap.
+- **Tasks / Projects / Areas** — full CRUD, filters, detail pages with progress and time spent.
+- **Goals** — daily / weekly / monthly / long-term; hours, tasks, sessions, pages or custom metrics;
+  automatic (from completed work) or manual tracking; milestones with linked tasks.
+- **Time tracking** — optional start / pause / resume / stop timer, manual entries, editable history.
+  Planning and tracking stay separate.
+- **Habits**, **Reviews** (daily / weekly / monthly with data context), **Analytics** (planned vs
+  completed, focused hours, where did my time go, weekly trend, consistency, estimate variance).
+- **Command Center** (`⌘/Ctrl+K`) with **Quick Add**: `React 2h tomorrow`, `Gym Thursday 18:00`,
+  `Startup 3h Saturday #mvp !high`, `Weekly Review every sunday 18:00`. Ambiguous input opens the
+  pre-filled editor for confirmation. No AI needed.
+- **Rescheduling** — Tomorrow / Next available slot / Later this week / Next week / Custom, each
+  showing the concrete target before you confirm. Split a block into sessions; merge them back.
+- **Recurring tasks** — daily / weekly (custom days) / monthly; instances are materialised a few weeks
+  ahead, idempotently, never back-filled into the past.
+- **Notifications** — optional reminders (upcoming, starting, still-open, daily planning/review,
+  weekly review) while the app is open.
+- **Settings** — week start, hours, time zone, date format, durations, working days, daily target,
+  notifications, theme (dark-first), accent, density, week templates, export / import / reset.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Architecture
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+  app/                     Next.js App Router. Pages are thin Server Components that render features.
+  features/<feature>/      Client UI per feature (dashboard, today, calendar, week, month, tasks, …)
+  components/ui/           shadcn/ui-style primitives on Radix
+  components/layout/       Shell: sidebar, bottom nav, shortcuts, theme sync
+  components/shared/       Small shared pieces (area dot, stat, empty state, duration input…)
+  services/                Use-cases (task, schedule, time, goals, habits, reviews, templates, data)
+  repositories/            Storage abstraction: IndexedDB + in-memory implementations
+  lib/                     Pure logic: date, analytics, goals, recurrence, scheduling, quick-add
+  hooks/                   TanStack Query hooks, mutation helpers, clock
+  store/                   Tiny selector-based UI store (global dialogs) — no giant context
+  types/domain.ts          Zod schemas + types for every entity
+  tests/                   Vitest unit + RTL component tests
+e2e/                       Playwright flows
+```
 
-## Deploy on Vercel
+**Layers.** Components call *services*; services depend only on the `DataStore` interface
+(`repositories/types.ts`); all calculations live in pure functions under `lib/`. Swapping IndexedDB for
+PostgreSQL + an API means writing one new `DataStore` implementation (or a service layer that calls
+HTTP) — no component changes.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Task vs. block.** A `Task` is the work. A `ScheduleBlock` (task instance) is *when* it's planned.
+One task can have many blocks (1h today + 1h tomorrow). Moving, splitting, merging and recurring
+instances all operate on blocks, so the task is never duplicated. Blocks keep `originalDate` and a
+`rescheduleCount` for insight, shown neutrally.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Time.** "Actual time" is computed once (`lib/analytics/work.ts`): completed blocks contribute their
+recorded actual duration; timer/manual entries contribute only when not attached to a completed block.
+Analytics and goals share it, so nothing is double counted.
+
+**Proposals, not silent changes.** Bulk operations (carry-over, applying a template) produce a list of
+`PlanChange`s (`lib/planning/changes.ts`) that the user reviews before `schedule.applyChanges` runs.
+A future AI planning assistant plugs into exactly this: *propose → confirm → apply*.
+
+**State.** Server state via TanStack Query (per-collection and per-date-range keys, optimistic updates
+for drag & drop, invalidation by group). UI state (which dialog is open) in a small external store with
+selectors. Date-dependent rendering happens only on the client to avoid hydration mismatches.
+
+**Errors.** Every mutation goes through `useAction` / `perform`, which provide pending state, success
+toasts (often with **Undo**) and an error toast. Nothing fails silently.
+
+## Roadmap
+
+- **Phase 2** (largely included): habits, reviews, notifications, recurring tasks, deeper analytics.
+- **Phase 3:** backend + auth, PostgreSQL `DataStore`, cloud sync, installable PWA with a service
+  worker for background notifications.
+- **Phase 4:** AI assistant ("Plan my week", "I only have 4 hours today") producing `PlanChange`
+  proposals through the existing confirm/apply flow.

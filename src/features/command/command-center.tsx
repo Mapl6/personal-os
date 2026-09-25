@@ -161,7 +161,7 @@ function CommandBody() {
         <CommandEmpty>No results.</CommandEmpty>
 
         {page === "root" && parsed && parsed.title && (
-          <CommandGroup heading="Quick add">
+          <CommandGroup heading="Quick add" forceMount>
             <CommandItem forceMount value={`__create ${search}`} onSelect={() => create(parsed)}>
               {parsed.ambiguities.length ? <AlertTriangle className="!text-warning" /> : <Plus />}
               <div className="min-w-0 flex-1">

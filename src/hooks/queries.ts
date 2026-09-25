@@ -85,7 +85,10 @@ export function useTimerState() {
 }
 
 export function useGoals() {
-  return useQuery({ queryKey: qk.goals, queryFn: () => s().store.goals.list() });
+  return useQuery({
+    queryKey: qk.goals,
+    queryFn: async () => (await s().store.goals.list()).sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id)),
+  });
 }
 
 export function useGoalProgress() {

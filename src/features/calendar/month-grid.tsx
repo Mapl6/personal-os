@@ -120,7 +120,7 @@ function MonthCell({
         {blocks.slice(0, MAX_CHIPS).map((b) => {
           const task = lookups.taskById.get(b.taskId);
           if (!task) return null;
-          return <Chip key={b.id} block={b}>{<BlockCard variant="chip" block={b} task={task} area={task.areaId ? lookups.areaById.get(task.areaId) : null} />}</Chip>;
+          return <Chip key={b.id} block={b} label={task.title}>{<BlockCard variant="chip" block={b} task={task} area={task.areaId ? lookups.areaById.get(task.areaId) : null} />}</Chip>;
         })}
       </ul>
       {extra > 0 && (
@@ -132,13 +132,14 @@ function MonthCell({
   );
 }
 
-function Chip({ block, children }: { block: ScheduleBlock; children: React.ReactNode }) {
+function Chip({ block, label, children }: { block: ScheduleBlock; label: string; children: React.ReactNode }) {
   const { setNodeRef, attributes, listeners, isDragging } = useDraggableBlock(block);
   return (
     <li
       ref={setNodeRef}
       {...attributes}
       {...listeners}
+      aria-label={`${label}. Press enter to edit, space to move.`}
       onClick={() => ui.editBlock(block.id)}
       className={cn("cursor-grab touch-manipulation", isDragging && "opacity-40")}
     >

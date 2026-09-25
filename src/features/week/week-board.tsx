@@ -115,7 +115,7 @@ function DayColumn({
           const task = lookups.taskById.get(b.taskId);
           if (!task) return null;
           return (
-            <DraggableItem key={b.id} block={b}>
+            <DraggableItem key={b.id} block={b} label={task.title}>
               <div className="h-[52px]">
                 <BlockCard block={b} task={task} area={task.areaId ? lookups.areaById.get(task.areaId) : null} running={b.id === runningBlockId} height={52} />
               </div>
@@ -130,10 +130,10 @@ function DayColumn({
   );
 }
 
-function DraggableItem({ block, children }: { block: ScheduleBlock; children: React.ReactNode }) {
+function DraggableItem({ block, label, children }: { block: ScheduleBlock; label: string; children: React.ReactNode }) {
   const { setNodeRef, attributes, listeners, isDragging } = useDraggableBlock(block);
   return (
-    <li ref={setNodeRef} {...attributes} {...listeners} className={cn("cursor-grab touch-manipulation active:cursor-grabbing", isDragging && "opacity-40")}>
+    <li ref={setNodeRef} {...attributes} {...listeners} aria-label={`Move ${label}`} className={cn("cursor-grab touch-manipulation active:cursor-grabbing", isDragging && "opacity-40")}>
       {children}
     </li>
   );
