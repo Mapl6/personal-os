@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, Check, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Plus, Sparkles, X } from "lucide-react";
 import * as React from "react";
 import { AreaDot } from "@/components/shared/area";
 import { Field, WeekdayPicker } from "@/components/shared/field";
@@ -25,6 +25,8 @@ export function Onboarding() {
   const [start, setStart] = React.useState("09:00");
   const [end, setEnd] = React.useState("19:00");
   const [areas, setAreas] = React.useState(DEFAULT_AREAS.map((a) => a.name));
+  const [customAreas, setCustomAreas] = React.useState<string[]>([]);
+  const [newArea, setNewArea] = React.useState("");
   const [goals, setGoals] = React.useState<WeeklyGoalSetup[]>(DEFAULT_WEEKLY_GOALS);
   const [examples, setExamples] = React.useState(true);
   const [calendar, setCalendar] = React.useState<"gregorian" | "jalali">("gregorian");
@@ -44,6 +46,21 @@ export function Onboarding() {
       }),
     { invalidate: ["all"], success: "You're all set. Plans are hypotheses — adjust freely." },
   );
+
+  const trimmedArea = newArea.trim();
+  const areaExists = [...DEFAULT_AREAS.map((a) => a.name), ...customAreas].some(
+    (n) => n.toLocaleLowerCase() === trimmedArea.toLocaleLowerCase(),
+  );
+  const addArea = () => {
+    if (!trimmedArea || areaExists) return;
+    setCustomAreas((prev) => [...prev, trimmedArea]);
+    setAreas((prev) => [...prev, trimmedArea]);
+    setNewArea("");
+  };
+  const removeArea = (name: string) => {
+    setCustomAreas((prev) => prev.filter((x) => x !== name));
+    setAreas((prev) => prev.filter((x) => x !== name));
+  };
 
   const valid =
     step === 1 ? days.length > 0 : step === 2 ? (parseTime(start) ?? 0) < (parseTime(end) ?? 0) : step === 3 ? areas.length > 0 : true;
@@ -134,7 +151,46 @@ export function Onboarding() {
                   {a.name}
                 </label>
               ))}
+              {customAreas.map((n) => (
+                <div key={n} className="flex items-center gap-2.5 rounded-lg border border-border px-3 py-2.5 text-sm">
+                  <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-2.5">
+                    <Checkbox
+                      checked={areas.includes(n)}
+                      onCheckedChange={(c) => setAreas((prev) => (c ? [...prev, n] : prev.filter((x) => x !== n)))}
+                    />
+                    <AreaDot color="slate" />
+                    <span className="truncate">{n}</span>
+                  </label>
+                  <button
+                    type="button"
+                    className="text-muted-foreground hover:text-foreground"
+                    aria-label={`Remove ${n}`}
+                    onClick={() => removeArea(n)}
+                  >
+                    <X className="size-4" />
+                  </button>
+                </div>
+              ))}
             </div>
+            <form
+              className="flex gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                addArea();
+              }}
+            >
+              <Input
+                value={newArea}
+                maxLength={60}
+                onChange={(e) => setNewArea(e.target.value)}
+                placeholder="Add your own area"
+                aria-label="New area name"
+              />
+              <Button type="submit" variant="secondary" disabled={!trimmedArea || areaExists}>
+                <Plus /> Add
+              </Button>
+            </form>
+            {trimmedArea && areaExists && <p className="text-xs text-danger">That area is already in the list.</p>}
           </div>
         )}
 
