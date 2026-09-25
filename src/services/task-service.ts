@@ -148,7 +148,24 @@ export function createTaskService(ctx: ServiceContext, getSchedule: () => Schedu
     if (status !== task.status) await store.tasks.put({ ...task, status, updatedAt: iso() });
   }
 
-  return { create, update, remove, complete, reopen, setStatus, toggleSubtask, syncStatus };
+  /** Renames (or merges, if `to` exists) a tag across all tasks. Returns affected task count. */
+  async function renameTag(from: string, to: string): Promise<number> {
+    const target = to.trim().replace(/^#/, "").toLowerCase();
+    if (!target) throw new Error("Tag name can't be empty");
+    const tasks = (await store.tasks.list()).filter((t) => t.tags.includes(from));
+    await store.tasks.putMany(
+      tasks.map((t) => ({ ...t, tags: [...new Set(t.tags.map((x) => (x === from ? target : x)))], updatedAt: iso() })),
+    );
+    return tasks.length;
+  }
+
+  async function deleteTag(tag: string): Promise<number> {
+    const tasks = (await store.tasks.list()).filter((t) => t.tags.includes(tag));
+    await store.tasks.putMany(tasks.map((t) => ({ ...t, tags: t.tags.filter((x) => x !== tag), updatedAt: iso() })));
+    return tasks.length;
+  }
+
+  return { create, update, remove, complete, reopen, setStatus, toggleSubtask, syncStatus, renameTag, deleteTag };
 }
 
 export type TaskService = ReturnType<typeof createTaskService>;

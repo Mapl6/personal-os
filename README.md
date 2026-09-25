@@ -54,6 +54,16 @@ Data lives in **IndexedDB** in your browser. Export/import JSON and reset from *
   ahead, idempotently, never back-filled into the past.
 - **Notifications** — optional reminders (upcoming, starting, still-open, daily planning/review,
   weekly review) while the app is open.
+- **Shamsi (Solar Hijri) calendar** — switch between Gregorian and Shamsi (شمسی): Jalali month
+  boundaries for month views, goals, analytics and monthly recurrence; a Jalali date picker; Persian or
+  English month/day names, Persian digits, 12/24h time. "Use Iranian defaults" sets Shamsi, Saturday
+  week start and a Saturday–Thursday working week. Dates are stored as Gregorian keys, so switching is
+  lossless. Quick Add understands `فردا`, `امروز`, Persian weekday names and Persian digits.
+- **Light & dark themes** — one-click toggle in the sidebar / mobile header, plus system mode.
+- **Customize** (Settings → Customize) — dashboard widgets (show/hide/reorder), sidebar navigation
+  (show/hide/reorder), default area & priority for new tasks, priority names, timeline zoom, show/hide
+  completed blocks, editable review questions, area and habit order, and a tag manager
+  (rename / merge / delete across all tasks).
 - **Settings** — week start, hours, time zone, date format, durations, working days, daily target,
   notifications, theme (dark-first), accent, density, week templates, export / import / reset.
 

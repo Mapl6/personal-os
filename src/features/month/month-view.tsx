@@ -28,6 +28,8 @@ import {
   isInRange,
   monthGridRange,
   monthRange,
+  sameMonth,
+  weekdayName,
   weekRange,
   type WeekdayIndex,
 } from "@/lib/date";
@@ -37,7 +39,7 @@ export function MonthView() {
   const today = useToday();
   const { settings } = useSettings();
   const [offset, setOffset] = React.useState(0);
-  const anchor = today ? addMonthsKey(today.slice(0, 8) + "01", offset) : null;
+  const anchor = today ? addMonthsKey(monthRange(today).from, offset) : null;
   const lookups = useLookups();
   const blocks = useAllBlocks();
   const entries = useAllTimeEntries();
@@ -235,7 +237,7 @@ export function MonthView() {
           </Card>
           <Card className="p-4">
             <div className="mb-2 text-sm font-medium">Daily completion</div>
-            <Heatmap series={data.series} month={anchor.slice(0, 7)} weekStartsOn={ws} />
+            <Heatmap series={data.series} anchor={anchor} weekStartsOn={ws} />
           </Card>
         </aside>
       </div>
@@ -243,18 +245,17 @@ export function MonthView() {
   );
 }
 
-function Heatmap({ series, month, weekStartsOn }: { series: ReturnType<typeof dailySeries>; month: string; weekStartsOn: number }) {
-  const labels = ["S", "M", "T", "W", "T", "F", "S"];
+function Heatmap({ series, anchor, weekStartsOn }: { series: ReturnType<typeof dailySeries>; anchor: string; weekStartsOn: number }) {
   return (
     <div>
       <div className="mb-1 grid grid-cols-7 gap-1 text-center text-[10px] text-muted-foreground">
         {Array.from({ length: 7 }, (_, i) => (
-          <span key={i}>{labels[(i + weekStartsOn) % 7]}</span>
+          <span key={i}>{weekdayName((i + weekStartsOn) % 7, "narrow")}</span>
         ))}
       </div>
       <div className="grid grid-cols-7 gap-1">
         {series.map((d) => {
-          const inMonth = d.date.startsWith(month);
+          const inMonth = sameMonth(d.date, anchor);
           const v = d.plannedMinutes ? d.completionPercent : 0;
           return (
             <Link

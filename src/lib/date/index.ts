@@ -1,16 +1,29 @@
 import {
   addDays,
-  addMonths,
   differenceInCalendarDays,
   eachDayOfInterval,
-  endOfMonth,
   endOfWeek,
   format,
   isValid,
   parseISO,
-  startOfMonth,
   startOfWeek,
 } from "date-fns";
+import { addCalendarMonths, formatClock, formatDate, monthEndKey, monthStartKey } from "./calendar";
+
+export {
+  addCalendarMonths,
+  calParts,
+  calendarVersion,
+  dayOfMonth,
+  daysInMonth,
+  getCalendarConfig,
+  localizeDigits,
+  monthsBetween,
+  sameMonth,
+  setCalendarConfig,
+  subscribeCalendar,
+  weekdayName,
+} from "./calendar";
 
 /** A calendar day in local time, formatted as `yyyy-MM-dd`. */
 export type DateKey = string;
@@ -51,8 +64,9 @@ export function addDaysKey(key: DateKey, amount: number): DateKey {
   return toDateKey(addDays(fromDateKey(key), amount));
 }
 
+/** Adds months in the active calendar system (Gregorian or Jalali). */
 export function addMonthsKey(key: DateKey, amount: number): DateKey {
-  return toDateKey(addMonths(fromDateKey(key), amount));
+  return addCalendarMonths(key, amount);
 }
 
 export function diffDays(a: DateKey, b: DateKey): number {
@@ -76,9 +90,9 @@ export function weekRange(key: DateKey, weekStartsOn: WeekdayIndex): DateRange {
   };
 }
 
+/** The month containing `key`, in the active calendar system. */
 export function monthRange(key: DateKey): DateRange {
-  const d = fromDateKey(key);
-  return { from: toDateKey(startOfMonth(d)), to: toDateKey(endOfMonth(d)) };
+  return { from: monthStartKey(key), to: monthEndKey(key) };
 }
 
 /** The 6×7 (or 5×7) grid of days that covers the month, padded to full weeks. */
@@ -120,12 +134,17 @@ export function parseTime(value: string): number | null {
   return h * 60 + m;
 }
 
-/** minutes → "HH:mm" */
-export function formatTime(minutes: number): string {
+/** minutes → raw "HH:mm" (for <input type="time"> values and storage). */
+export function timeValue(minutes: number): string {
   const safe = ((Math.round(minutes) % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY;
   const h = Math.floor(safe / 60);
   const m = safe % 60;
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+/** minutes → display time, honouring the 12/24h and digits settings. */
+export function formatTime(minutes: number): string {
+  return formatClock(minutes);
 }
 
 export function formatTimeRange(start: number, duration: number): string {
@@ -160,8 +179,9 @@ export function snapMinutes(minutes: number, step = 15): number {
 
 // ---------- display ----------
 
+/** Displays a date key in the active calendar, language and digits. */
 export function formatDateKey(key: DateKey, pattern = "EEE, MMM d"): string {
-  return format(fromDateKey(key), pattern);
+  return formatDate(key, pattern);
 }
 
 export function relativeDayLabel(key: DateKey, today: DateKey): string {

@@ -40,6 +40,32 @@ const WEEKDAYS: Record<string, WeekdayIndex> = {
   saturday: 6, sat: 6,
 };
 
+/** Persian weekday names (with and without the zero-width non-joiner). */
+const PERSIAN_WEEKDAYS: Record<string, WeekdayIndex> = {
+  "شنبه": 6,
+  "یکشنبه": 0,
+  "یک‌شنبه": 0,
+  "دوشنبه": 1,
+  "سه‌شنبه": 2,
+  "سهشنبه": 2,
+  "چهارشنبه": 3,
+  "پنجشنبه": 4,
+  "پنج‌شنبه": 4,
+  "جمعه": 5,
+};
+Object.assign(WEEKDAYS, PERSIAN_WEEKDAYS);
+
+/** Normalises Persian/Arabic digits and multi-word Persian day names. */
+function normalizePersian(input: string): string {
+  return input
+    .replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)))
+    .replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)))
+    .replace(/(یک|سه|پنج)\s+شنبه/g, "$1‌شنبه")
+    .replace(/پس\s*‌?\s*فردا/g, "پس‌فردا")
+    .replace(/(\d+(?:\.\d+)?)\s*ساعت/g, "$1h")
+    .replace(/(\d+)\s*دقیقه/g, "$1m");
+}
+
 const PRIORITY_WORDS: Record<string, Priority> = {
   low: "low",
   med: "medium",
@@ -49,7 +75,7 @@ const PRIORITY_WORDS: Record<string, Priority> = {
   urgent: "critical",
 };
 
-const FILLER = new Set(["on", "at", "for", "by", "next", "this", "every", "in"]);
+const FILLER = new Set(["on", "at", "for", "by", "next", "this", "every", "in", "ساعت", "در", "برای"]);
 
 function parseDuration(token: string): number | null {
   const t = token.toLowerCase();
@@ -91,7 +117,7 @@ function nextWeekday(today: DateKey, weekday: WeekdayIndex, forceNextWeek: boole
 export function parseQuickAdd(input: string, ctx: QuickAddContext): ParsedQuickAdd {
   const today = toDateKey(ctx.now);
   const nowMinutes = ctx.now.getHours() * 60 + ctx.now.getMinutes();
-  const tokens = input.trim().split(/\s+/).filter(Boolean);
+  const tokens = normalizePersian(input).trim().split(/\s+/).filter(Boolean);
   const used = new Set<number>();
   const ambiguities: string[] = [];
 
@@ -158,6 +184,31 @@ export function parseQuickAdd(input: string, ctx: QuickAddContext): ParsedQuickA
       }
     }
 
+    if (tok === "امروز") {
+      date = today;
+      used.add(i);
+      continue;
+    }
+    if (tok === "فردا") {
+      date = addDaysKey(today, 1);
+      used.add(i);
+      continue;
+    }
+    if (tok === "پس‌فردا") {
+      date = addDaysKey(today, 2);
+      used.add(i);
+      continue;
+    }
+    if (tok === "بعد" && lower[i - 1] === "هفته") {
+      date = addDaysKey(weekRange(today, ctx.weekStartsOn).to, 1);
+      used.add(i).add(i - 1);
+      continue;
+    }
+    if (prev === "ساعت" && /^\d{1,2}$/.test(tok) && start === null) {
+      start = +tok * 60;
+      used.add(i).add(i - 1);
+      continue;
+    }
     if (tok === "today" || tok === "tonight") {
       date = today;
       used.add(i);
@@ -236,7 +287,7 @@ export function parseQuickAdd(input: string, ctx: QuickAddContext): ParsedQuickA
       }
       date = target;
       used.add(i);
-      if (prev === "on" || prev === "next" || prev === "this") used.add(i - 1);
+      if (prev === "on" || prev === "next" || prev === "this" || prev === "روز") used.add(i - 1);
       continue;
     }
   }

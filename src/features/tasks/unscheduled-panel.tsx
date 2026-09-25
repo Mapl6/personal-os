@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils/cn";
 import { ui } from "@/store/ui-store";
 import type { Area, Task } from "@/types/domain";
 import { workActions } from "./actions";
+import { PriorityBadge } from "./task-status";
 import type { Lookups } from "./use-lookups";
 
 const PRIORITY_RANK = { critical: 0, high: 1, medium: 2, low: 3 } as const;
@@ -136,11 +137,7 @@ const UnscheduledItem = React.memo(function UnscheduledItem({
         <span className="flex items-center gap-1.5 text-xs text-muted-foreground tabular">
           {formatDuration(task.estimatedMinutes)}
           {task.dueDate && <span>· due {relativeDayLabel(task.dueDate, today)}</span>}
-          {(task.priority === "high" || task.priority === "critical") && (
-            <Badge variant={task.priority === "critical" ? "danger" : "warning"} className="py-0">
-              {task.priority}
-            </Badge>
-          )}
+          {(task.priority === "high" || task.priority === "critical") && <PriorityBadge priority={task.priority} />}
         </span>
       </button>
       <DropdownMenu>

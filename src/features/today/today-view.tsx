@@ -59,7 +59,9 @@ export function TodayView() {
   }
 
   const { gridStart, gridEnd } = computeGridRange(day.blocks, day.settings.dayStartMinutes, day.settings.dayEndMinutes);
-  const hourHeight = day.settings.density === "compact" ? 48 : 56;
+  const { hourHeight: zoom, showCompletedInTimeline } = day.settings.customization;
+  const hourHeight = Math.round(zoom * (day.settings.density === "compact" ? 0.86 : 1));
+  const timelineBlocks = showCompletedInTimeline ? day.blocks : day.blocks.filter((b) => b.status !== "completed");
 
   return (
     <PlannerDnd>
@@ -107,7 +109,7 @@ export function TodayView() {
             <div className="max-h-[calc(100dvh-280px)] min-h-[420px] overflow-y-auto rounded-xl scrollbar-thin">
               <TimeGrid
                 days={[date]}
-                blocks={day.blocks}
+                blocks={timelineBlocks}
                 lookups={day.lookups}
                 gridStart={gridStart}
                 gridEnd={gridEnd}

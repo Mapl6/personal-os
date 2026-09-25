@@ -3,7 +3,7 @@
 import * as React from "react";
 import { BlockCard } from "@/features/tasks/block-card";
 import type { Lookups } from "@/features/tasks/use-lookups";
-import { daysInRange, formatDateKey, formatHours, WEEKDAY_SHORT, type DateKey, type DateRange } from "@/lib/date";
+import { daysInRange, formatDateKey, formatHours, sameMonth, weekdayName, type DateKey, type DateRange } from "@/lib/date";
 import { cn } from "@/lib/utils/cn";
 import { ui } from "@/store/ui-store";
 import type { ScheduleBlock } from "@/types/domain";
@@ -13,7 +13,7 @@ const MAX_CHIPS = 3;
 
 export function MonthGrid({
   grid,
-  month,
+  anchor,
   blocks,
   lookups,
   today,
@@ -21,7 +21,7 @@ export function MonthGrid({
   onOpenDay,
 }: {
   grid: DateRange;
-  month: string; // yyyy-MM
+  anchor: DateKey; // any day in the displayed month
   blocks: ScheduleBlock[];
   lookups: Pick<Lookups, "taskById" | "areaById">;
   today: DateKey;
@@ -39,7 +39,7 @@ export function MonthGrid({
     for (const list of m.values()) list.sort((a, b) => (a.startMinutes ?? -1) - (b.startMinutes ?? -1));
     return m;
   }, [blocks]);
-  const headers = Array.from({ length: 7 }, (_, i) => WEEKDAY_SHORT[(i + weekStartsOn) % 7]);
+  const headers = Array.from({ length: 7 }, (_, i) => weekdayName((i + weekStartsOn) % 7, "short"));
 
   return (
     <div className="overflow-hidden rounded-xl border border-border">
@@ -55,7 +55,7 @@ export function MonthGrid({
           <MonthCell
             key={d}
             date={d}
-            inMonth={d.startsWith(month)}
+            inMonth={sameMonth(d, anchor)}
             isToday={d === today}
             blocks={byDay.get(d) ?? []}
             lookups={lookups}

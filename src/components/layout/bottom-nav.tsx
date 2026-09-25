@@ -7,12 +7,15 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { TimerWidget } from "@/features/time-tracking/timer-widget";
 import { cn } from "@/lib/utils/cn";
 import { ui, uiStore } from "@/store/ui-store";
-import { MOBILE_PRIMARY, NAV_ITEMS, isActive } from "./nav-items";
+import { useSettings } from "@/hooks/queries";
+import { MOBILE_PRIMARY, NAV_ITEMS, isActive, orderNavItems } from "./nav-items";
 
 /** Mobile navigation: four primary tabs, a central add button and a "More" sheet. */
 export function BottomNav() {
   const pathname = usePathname();
   const moreOpen = uiStore.useStore((s) => s.mobileNavOpen);
+  const { settings } = useSettings();
+  const navItems = orderNavItems(settings.customization.navOrder, settings.customization.hiddenNav);
   const primary = NAV_ITEMS.filter((n) => MOBILE_PRIMARY.includes(n.href));
   const [first, second] = [primary.slice(0, 2), primary.slice(2)];
 
@@ -65,7 +68,7 @@ export function BottomNav() {
         <SheetContent side="bottom" className="p-4">
           <SheetTitle className="mb-3 text-sm font-semibold">Navigate</SheetTitle>
           <div className="grid grid-cols-3 gap-2">
-            {NAV_ITEMS.map((item) => (
+            {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}

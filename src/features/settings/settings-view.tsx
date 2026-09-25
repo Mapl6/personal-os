@@ -16,10 +16,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useAction } from "@/hooks/use-action";
 import { useSettings } from "@/hooks/queries";
-import { formatTime, parseTime } from "@/lib/date";
+import { parseTime, timeValue } from "@/lib/date";
 import { cn } from "@/lib/utils/cn";
 import { getServices } from "@/services";
 import { ACCENTS, type Settings } from "@/types/domain";
+import { CustomizeSection } from "./customize-section";
+import { TagsSection } from "./tags-section";
 import { TemplatesSection } from "./template-editor";
 
 function Section({ id, title, description, children }: { id: string; title: string; description?: string; children: React.ReactNode }) {
@@ -51,14 +53,22 @@ function Row({ label, hint, children }: { label: string; hint?: string; children
 export function SettingsView() {
   const { settings, isLoading } = useSettings();
   if (isLoading) return <Skeleton className="h-96" />;
-  return <SettingsForm key={JSON.stringify(settings)} initial={settings} />;
+  // Keyed on onboarding only: immediate-save sections must not wipe unsaved edits elsewhere.
+  return <SettingsForm key={String(settings.onboarded)} initial={settings} />;
 }
 
 function SettingsForm({ initial }: { initial: Settings }) {
   const [s, setS] = React.useState(initial);
   const { setTheme } = useTheme();
-  const dirty = JSON.stringify(s) !== JSON.stringify(initial);
+  const strip = (x: Settings) => ({ ...x, calendar: null, customization: null, theme: null, accent: null, density: null });
+  const dirty = JSON.stringify(strip(s)) !== JSON.stringify(strip(initial));
   const save = useAction((next: Partial<Settings>) => getServices().data.saveSettings(next), { invalidate: ["settings"], success: "Settings saved" });
+  const saveQuiet = useAction((next: Partial<Settings>) => getServices().data.saveSettings(next), { invalidate: ["settings"] });
+  /** Calendar & customisation apply immediately (and don't disturb unsaved edits elsewhere). */
+  const setImmediate = (patch: Partial<Settings>) => {
+    setS((prev) => ({ ...prev, ...patch }));
+    saveQuiet.mutate(patch);
+  };
   const set = <K extends keyof Settings>(k: K, v: Settings[K]) => setS((prev) => ({ ...prev, [k]: v }));
   const setN = <K extends keyof Settings["notifications"]>(k: K, v: Settings["notifications"][K]) => setS((prev) => ({ ...prev, notifications: { ...prev.notifications, [k]: v } }));
 
@@ -83,13 +93,13 @@ function SettingsForm({ initial }: { initial: Settings }) {
         title="Settings"
         description="Everything is stored locally on this device."
         actions={
-          <Button size="sm" disabled={!dirty || save.isPending} onClick={() => save.mutate(s)}>
+          <Button size="sm" disabled={!dirty || save.isPending} onClick={() => save.mutate(s)} className="sticky top-2 z-10">
             {save.isPending ? "Saving…" : dirty ? "Save changes" : "Saved"}
           </Button>
         }
       />
       <nav className="mb-4 flex flex-wrap gap-1 text-sm" aria-label="Settings sections">
-        {["general", "planning", "notifications", "appearance", "templates", "data", "shortcuts"].map((id) => (
+        {["general", "calendar", "planning", "notifications", "appearance", "customize", "templates", "tags", "data", "shortcuts"].map((id) => (
           <a key={id} href={`#${id}`} className="rounded-md px-2 py-1 capitalize text-muted-foreground hover:bg-accent hover:text-foreground">{id}</a>
         ))}
       </nav>
@@ -105,9 +115,9 @@ function SettingsForm({ initial }: { initial: Settings }) {
           </Row>
           <Row label="Default working hours">
             <div className="flex items-center gap-2">
-              <Input type="time" step={900} value={formatTime(s.dayStartMinutes)} onChange={(e) => set("dayStartMinutes", parseTime(e.target.value) ?? s.dayStartMinutes)} aria-label="Day start" />
+              <Input type="time" step={900} value={timeValue(s.dayStartMinutes)} onChange={(e) => set("dayStartMinutes", parseTime(e.target.value) ?? s.dayStartMinutes)} aria-label="Day start" />
               <span className="text-muted-foreground">–</span>
-              <Input type="time" step={900} value={formatTime(s.dayEndMinutes)} onChange={(e) => set("dayEndMinutes", parseTime(e.target.value) ?? s.dayEndMinutes)} aria-label="Day end" />
+              <Input type="time" step={900} value={timeValue(s.dayEndMinutes)} onChange={(e) => set("dayEndMinutes", parseTime(e.target.value) ?? s.dayEndMinutes)} aria-label="Day end" />
             </div>
           </Row>
           <Row label="Time zone" hint="Dates use this device's local time.">
@@ -121,6 +131,50 @@ function SettingsForm({ initial }: { initial: Settings }) {
               <option value="yyyy-MM-dd">2026-09-25</option>
             </NativeSelect>
           </Row>
+        </Section>
+
+        <Section id="calendar" title="Calendar & language" description="Shamsi (Solar Hijri) or Gregorian. Applied immediately; stored dates are unaffected, so you can switch back anytime.">
+          <Row label="Calendar">
+            <div className="flex gap-1" role="radiogroup" aria-label="Calendar">
+              {([["gregorian", "Gregorian"], ["jalali", "Shamsi · شمسی"]] as const).map(([v, l]) => (
+                <Button key={v} size="sm" role="radio" aria-checked={s.calendar.system === v} variant={s.calendar.system === v ? "default" : "secondary"} className="flex-1" onClick={() => setImmediate({ calendar: { ...s.calendar, system: v } })}>{l}</Button>
+              ))}
+            </div>
+          </Row>
+          <Row label="Month & day names">
+            <NativeSelect value={s.calendar.language} onChange={(e) => setImmediate({ calendar: { ...s.calendar, language: e.target.value as Settings["calendar"]["language"] } })} aria-label="Month and day names">
+              <option value="en">English (Farvardin, Saturday…)</option>
+              <option value="fa">فارسی (فروردین، شنبه…)</option>
+            </NativeSelect>
+          </Row>
+          <Row label="Digits">
+            <NativeSelect value={s.calendar.digits} onChange={(e) => setImmediate({ calendar: { ...s.calendar, digits: e.target.value as Settings["calendar"]["digits"] } })} aria-label="Digits">
+              <option value="latin">0123456789</option>
+              <option value="persian">۰۱۲۳۴۵۶۷۸۹</option>
+            </NativeSelect>
+          </Row>
+          <Row label="Time format">
+            <NativeSelect value={s.calendar.timeFormat} onChange={(e) => setImmediate({ calendar: { ...s.calendar, timeFormat: e.target.value as Settings["calendar"]["timeFormat"] } })} aria-label="Time format">
+              <option value="24h">24-hour (18:30)</option>
+              <option value="12h">12-hour (6:30pm)</option>
+            </NativeSelect>
+          </Row>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() =>
+                setImmediate({
+                  calendar: { system: "jalali", language: "fa", digits: "persian", timeFormat: "24h" },
+                  weekStartsOn: 6,
+                  workingDays: [6, 0, 1, 2, 3, 4],
+                })
+              }
+            >
+              Use Iranian defaults
+            </Button>
+            <span className="self-center text-xs text-muted-foreground">Shamsi, Persian names & digits, week starts Saturday, Friday off.</span>
+          </div>
         </Section>
 
         <Section id="planning" title="Planning">
@@ -145,13 +199,13 @@ function SettingsForm({ initial }: { initial: Settings }) {
             <Row label="Daily planning">
               <div className="flex items-center gap-2">
                 <Switch checked={s.notifications.dailyPlanning} onCheckedChange={(v) => setN("dailyPlanning", v)} aria-label="Daily planning" />
-                <Input type="time" className="h-8" value={formatTime(s.notifications.dailyPlanningMinutes)} onChange={(e) => setN("dailyPlanningMinutes", parseTime(e.target.value) ?? 510)} aria-label="Daily planning time" />
+                <Input type="time" className="h-8" value={timeValue(s.notifications.dailyPlanningMinutes)} onChange={(e) => setN("dailyPlanningMinutes", parseTime(e.target.value) ?? 510)} aria-label="Daily planning time" />
               </div>
             </Row>
             <Row label="Daily review">
               <div className="flex items-center gap-2">
                 <Switch checked={s.notifications.dailyReview} onCheckedChange={(v) => setN("dailyReview", v)} aria-label="Daily review" />
-                <Input type="time" className="h-8" value={formatTime(s.notifications.dailyReviewMinutes)} onChange={(e) => setN("dailyReviewMinutes", parseTime(e.target.value) ?? 1260)} aria-label="Daily review time" />
+                <Input type="time" className="h-8" value={timeValue(s.notifications.dailyReviewMinutes)} onChange={(e) => setN("dailyReviewMinutes", parseTime(e.target.value) ?? 1260)} aria-label="Daily review time" />
               </div>
             </Row>
             <Row label="Weekly review" hint="On the last day of the week."><Switch checked={s.notifications.weeklyReview} onCheckedChange={(v) => setN("weeklyReview", v)} aria-label="Weekly review" /></Row>
@@ -183,6 +237,14 @@ function SettingsForm({ initial }: { initial: Settings }) {
               ))}
             </div>
           </Row>
+        </Section>
+
+        <Section id="customize" title="Customize" description="Make the app yours. Changes apply immediately.">
+          <CustomizeSection value={s.customization} onChange={(customization) => setImmediate({ customization })} />
+        </Section>
+
+        <Section id="tags" title="Tags" description="Rename, merge or delete tags across every task.">
+          <TagsSection />
         </Section>
 
         <Section id="templates" title="Week templates" description="A typical week you can apply from the Week page. Applying adds editable blocks — it never locks your schedule.">
@@ -236,6 +298,8 @@ function DataSection() {
   const importData = useAction((raw: unknown) => getServices().data.importAll(raw), {
     invalidate: ["all"],
     success: (r) => `Imported ${r.counts.tasks} tasks, ${r.counts.blocks} blocks, ${r.counts.timeEntries} time entries`,
+    // Reload so every screen (and this form) starts from the imported data.
+    onSuccess: () => setTimeout(() => window.location.reload(), 800),
   });
   const reset = useAction(() => getServices().data.reset(), { invalidate: ["all"], success: "All data deleted" });
 

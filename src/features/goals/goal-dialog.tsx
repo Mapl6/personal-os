@@ -1,7 +1,8 @@
 "use client";
 
+import { DateField } from "@/components/shared/date-field";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { Field } from "@/components/shared/field";
 import { Button } from "@/components/ui/button";
@@ -131,7 +132,7 @@ export function GoalDialog({ open, onOpenChange, goal }: { open: boolean; onOpen
             )}
             <div className="grid grid-cols-2 gap-3">
               <Field label="Deadline" htmlFor="gl-deadline">
-                <Input id="gl-deadline" type="date" {...register("deadline")} />
+                <Controller control={control} name="deadline" render={({ field }) => <DateField id="gl-deadline" value={field.value} onChange={field.onChange} />} />
               </Field>
             </div>
             <Field label="Why it matters" htmlFor="gl-desc">

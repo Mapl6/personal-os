@@ -5,7 +5,7 @@ test("mobile: bottom nav, add and complete a task from the phone", async ({ page
   await onboard(page);
   const nav = page.getByRole("navigation", { name: "Main navigation" });
   await nav.getByRole("link", { name: "Today" }).click();
-  await expect(page.getByRole("heading", { name: "Today" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Today", exact: true, level: 1 })).toBeVisible();
   await nav.getByRole("button", { name: "New task" }).click();
   const dialog = page.getByRole("dialog", { name: "New task" });
   await dialog.getByLabel("Title").fill("Yoga");

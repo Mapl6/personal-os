@@ -1,5 +1,6 @@
 "use client";
 
+import { DateField } from "@/components/shared/date-field";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash2, X } from "lucide-react";
 import * as React from "react";
@@ -12,9 +13,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input, NativeSelect, Textarea } from "@/components/ui/input";
 import { useAction } from "@/hooks/use-action";
-import { useGoals, useSettings } from "@/hooks/queries";
+import { useGoals, usePriorityLabel, useSettings } from "@/hooks/queries";
 import { useToday } from "@/hooks/use-now";
-import { addDaysKey, formatTime, parseTime, weekdayOf } from "@/lib/date";
+import { addDaysKey, parseTime, weekdayOf, timeValue } from "@/lib/date";
 import { createId } from "@/lib/utils/id";
 import { getServices } from "@/services";
 import type { TaskInput } from "@/services/task-service";
@@ -78,6 +79,7 @@ function TaskEditor({ state }: { state: TaskEditorState }) {
   const lookups = useLookups();
   const { settings } = useSettings();
   const goals = useGoals();
+  const priorityLabel = usePriorityLabel();
   const today = useToday() ?? "";
   const task = state.taskId ? lookups.taskById.get(state.taskId) : undefined;
   const isEdit = !!state.taskId;
@@ -89,15 +91,15 @@ function TaskEditor({ state }: { state: TaskEditorState }) {
       title: task?.title ?? p.title ?? "",
       description: task?.description ?? p.description ?? "",
       notes: task?.notes ?? "",
-      areaId: task?.areaId ?? p.areaId ?? "",
+      areaId: task?.areaId ?? p.areaId ?? (isEdit ? "" : (settings.customization.defaultAreaId ?? "")),
       projectId: task?.projectId ?? p.projectId ?? "",
       goalId: task?.goalId ?? p.goalId ?? "",
-      priority: task?.priority ?? p.priority ?? "medium",
+      priority: task?.priority ?? p.priority ?? settings.customization.defaultPriority,
       status: task?.status ?? "inbox",
       estimatedMinutes: task?.estimatedMinutes ?? p.estimatedMinutes ?? settings.defaultDurationMinutes,
       dueDate: task?.dueDate ?? p.dueDate ?? "",
       scheduleDate: isEdit ? "" : (p.date ?? ""),
-      scheduleTime: isEdit ? "" : p.startMinutes != null ? formatTime(p.startMinutes) : "",
+      scheduleTime: isEdit ? "" : p.startMinutes != null ? timeValue(p.startMinutes) : "",
       repeat: r ? r.frequency : "none",
       repeatInterval: r?.interval ?? 1,
       repeatWeekdays: r?.weekdays ?? [],
@@ -245,7 +247,7 @@ function TaskEditor({ state }: { state: TaskEditorState }) {
               <NativeSelect id="task-priority" {...register("priority")}>
                 {PRIORITIES.map((p) => (
                   <option key={p} value={p}>
-                    {p[0].toUpperCase() + p.slice(1)}
+                    {priorityLabel(p)}
                   </option>
                 ))}
               </NativeSelect>
@@ -262,7 +264,7 @@ function TaskEditor({ state }: { state: TaskEditorState }) {
             </Field>
             <div className="grid grid-cols-2 gap-3 self-start">
               <Field label="Due date" htmlFor="task-due">
-                <Input id="task-due" type="date" {...register("dueDate")} />
+                <Controller control={control} name="dueDate" render={({ field }) => <DateField id="task-due" value={field.value} onChange={field.onChange} />} />
               </Field>
               {isEdit ? (
                 <Field label="Status" htmlFor="task-status">
@@ -287,7 +289,7 @@ function TaskEditor({ state }: { state: TaskEditorState }) {
               <legend className="px-1 text-[13px] font-medium text-muted-foreground">Schedule (optional)</legend>
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Date" htmlFor="task-date">
-                  <Input id="task-date" type="date" {...register("scheduleDate")} />
+                  <Controller control={control} name="scheduleDate" render={({ field }) => <DateField id="task-date" value={field.value} onChange={field.onChange} />} />
                 </Field>
                 <Field label="Start time" htmlFor="task-time" error={formState.errors.scheduleTime?.message} hint={scheduleDate ? "Empty = anytime that day" : undefined}>
                   <Input id="task-time" type="time" step={900} {...register("scheduleTime")} />
@@ -347,7 +349,7 @@ function TaskEditor({ state }: { state: TaskEditorState }) {
               )}
               {repeat !== "none" && isEdit && (
                 <Field label="Time" htmlFor="task-rtime" className="w-28">
-                  <Input id="task-rtime" type="time" step={900} {...register("scheduleTime")} placeholder={task?.recurrence?.startMinutes != null ? formatTime(task.recurrence.startMinutes) : ""} />
+                  <Input id="task-rtime" type="time" step={900} {...register("scheduleTime")} placeholder={task?.recurrence?.startMinutes != null ? timeValue(task.recurrence.startMinutes) : ""} />
                 </Field>
               )}
             </div>
