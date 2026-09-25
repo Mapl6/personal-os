@@ -17,10 +17,10 @@ import {
   Wand2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
 import * as React from "react";
 import { AreaDot } from "@/components/shared/area";
 import { NAV_ITEMS } from "@/components/layout/nav-items";
+import { useToggleTheme } from "@/components/layout/theme-toggle";
 import {
   Command,
   CommandEmpty,
@@ -58,7 +58,7 @@ export function CommandCenter() {
 
 function CommandBody() {
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
+  const toggleTheme = useToggleTheme();
   const lookups = useLookups();
   const { settings } = useSettings();
   const timer = useTimerState();
@@ -239,7 +239,7 @@ function CommandBody() {
               <CommandItem value="open weekly review" onSelect={() => go("/reviews?type=weekly")}>
                 <NotebookPen /> Open weekly review
               </CommandItem>
-              <CommandItem value="toggle theme dark light" onSelect={() => setTheme(theme === "dark" ? "light" : "dark")}>
+              <CommandItem value="toggle theme dark light" onSelect={toggleTheme.toggle}>
                 <Moon /> Toggle dark / light
               </CommandItem>
             </CommandGroup>

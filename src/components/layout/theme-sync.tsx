@@ -10,19 +10,25 @@ export const APPEARANCE_KEY = "pos-appearance";
 export function ThemeSync() {
   const { settings, isSuccess } = useSettings();
   const { setTheme } = useTheme();
+  // next-themes gives setTheme a new identity whenever the theme changes; depending on it would
+  // re-run this effect and revert any theme change not yet saved to settings.
+  const setThemeRef = React.useRef(setTheme);
+  React.useEffect(() => {
+    setThemeRef.current = setTheme;
+  });
   React.useEffect(() => {
     if (!isSuccess) return;
     const root = document.documentElement;
     root.dataset.accent = settings.accent;
     root.dataset.density = settings.density;
     root.dataset.dateLang = settings.calendar.language;
-    setTheme(settings.theme);
+    setThemeRef.current(settings.theme);
     try {
       localStorage.setItem(APPEARANCE_KEY, JSON.stringify({ accent: settings.accent, density: settings.density, dateLang: settings.calendar.language }));
     } catch {
       /* storage unavailable — appearance still applied for this session */
     }
-  }, [isSuccess, settings.accent, settings.density, settings.theme, settings.calendar.language, setTheme]);
+  }, [isSuccess, settings.accent, settings.density, settings.theme, settings.calendar.language]);
   return null;
 }
 
