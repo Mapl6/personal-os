@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/command";
+import { Logo } from "@/components/shared/logo";
 import { Tooltip } from "@/components/ui/tooltip";
 import { TimerWidget } from "@/features/time-tracking/timer-widget";
 import { cn } from "@/lib/utils/cn";
@@ -19,13 +20,7 @@ const COLLAPSE_KEY = "pos-sidebar-collapsed";
 function Brand({ collapsed }: { collapsed: boolean }) {
   return (
     <div className={cn("flex items-center gap-2 px-2", collapsed && "justify-center px-0")}>
-      <div className="flex size-7 items-center justify-center rounded-lg bg-primary/15 text-primary">
-        <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={2.2} aria-hidden>
-          <path d="M4 12a8 8 0 1 0 16 0 8 8 0 0 0-16 0" opacity=".35" />
-          <path d="M12 4a8 8 0 0 1 8 8" strokeLinecap="round" />
-          <circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none" />
-        </svg>
-      </div>
+      <Logo />
       {!collapsed && <span className="text-sm font-semibold tracking-tight">Personal OS</span>}
     </div>
   );

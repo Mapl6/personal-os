@@ -2,6 +2,7 @@
 
 import { Command, Plus } from "lucide-react";
 import * as React from "react";
+import { Logo } from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CommandCenter } from "@/features/command/command-center";
@@ -66,7 +67,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-background/90 px-4 py-2.5 backdrop-blur md:hidden">
-          <span className="text-sm font-semibold">Personal OS</span>
+          <span className="flex items-center gap-2 text-sm font-semibold">
+            <Logo className="size-6" />
+            Personal OS
+          </span>
           <div className="flex gap-1">
             <ThemeToggle />
             <Button size="icon-sm" variant="ghost" onClick={() => ui.openCommand()} aria-label="Open command center">
