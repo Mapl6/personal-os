@@ -160,6 +160,8 @@ e2e/              Playwright flows
 - [ ] Optional backend: accounts, PostgreSQL and sync across devices
 - [ ] AI planning assistant: "Plan my week", "I only have 4 hours today", always propose → confirm → apply
 
+The long-term plan to grow this into a full **second brain and life OS** (pages and notes, databases, life modules, capture everywhere, sync and AI) is in [docs/ROADMAP.md](docs/ROADMAP.md).
+
 ## 🤝 Contributing
 
 Issues and pull requests are welcome. Before opening a PR, run:
