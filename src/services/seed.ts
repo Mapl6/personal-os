@@ -76,6 +76,20 @@ export interface WorkspaceSetup {
   calendar?: "gregorian" | "jalali";
 }
 
+/** One-click demo (`/?demo=1` or "Try the demo"): default areas and goals plus example data. */
+export function demoWorkspace(timeZone?: string): WorkspaceSetup {
+  return {
+    name: "",
+    workingDays: [1, 2, 3, 4, 5, 6],
+    dayStartMinutes: 9 * 60,
+    dayEndMinutes: 19 * 60,
+    areaNames: DEFAULT_AREAS.map((a) => a.name),
+    weeklyGoals: DEFAULT_WEEKLY_GOALS,
+    includeExamples: true,
+    timeZone,
+  };
+}
+
 /** Onboarding: creates areas, weekly goals, the "Normal Week" template and (optionally) example data. */
 export async function setupWorkspace(services: Services, setup: WorkspaceSetup, now = new Date()): Promise<void> {
   await services.data.saveSettings({
