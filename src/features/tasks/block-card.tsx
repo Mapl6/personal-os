@@ -193,8 +193,10 @@ export const BlockCard = React.memo(function BlockCard({
         </div>
         <div
           className={cn(
-            // Overlay so hidden actions don't steal width from the title in narrow columns.
-            "absolute right-0.5 top-0.5 flex items-center rounded-md bg-card/95 opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 pointer-coarse:opacity-100",
+            // Overlay so hidden actions don't steal width from the title in narrow columns. Touch has no
+            // hover, so there the actions stay visible and sit in flow instead of covering the title.
+            "absolute right-0.5 top-0.5 flex items-center rounded-md bg-card/95 opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+            "pointer-coarse:static pointer-coarse:shrink-0 pointer-coarse:bg-transparent pointer-coarse:opacity-100 pointer-coarse:shadow-none",
             running && "opacity-100",
           )}
         >
