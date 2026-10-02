@@ -41,8 +41,21 @@ type PriorityFilter = "all" | "p0" | "p01";
 const pct = (n: number, total: number) => `${total ? (100 * n) / total : 0}%`;
 const stageName = (stage: number) => (stage === 0 ? "today" : stage === FINAL_STAGE ? "complete" : `end of Phase ${stage}`);
 
+const STAGE_HASHES = ["today", "phase-1", "phase-2", "phase-3", "phase-4", "phase-5"];
+
+function stageFromHash(): number | null {
+  if (typeof window === "undefined") return null;
+  const index = STAGE_HASHES.indexOf(window.location.hash.replace(/^#/, ""));
+  return index >= 0 ? index : null;
+}
+
 export function RoadmapView({ features }: { features: RoadmapFeature[] }) {
-  const [stage, setStage] = React.useState(FINAL_STAGE);
+  const [stage, setStage] = React.useState<number>(() => stageFromHash() ?? FINAL_STAGE);
+
+  React.useEffect(() => {
+    window.history.replaceState(null, "", `#${STAGE_HASHES[stage]}`);
+  }, [stage]);
+
   const [includeP2, setIncludeP2] = React.useState(true);
   const [selected, setSelected] = React.useState<RoadmapFeature | null>(null);
   const built = React.useCallback((f: RoadmapFeature) => isBuiltAt(f, stage, includeP2), [stage, includeP2]);
