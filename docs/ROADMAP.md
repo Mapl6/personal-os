@@ -96,21 +96,24 @@ Custom databases are what make it feel like Notion: you define a collection (boo
 
 ## Life modules
 
-Each module is a ready-made database, page templates and a small dashboard, installable from a module gallery and switchable off. They all link to areas, goals, tasks and daily notes, so a workout counts toward a Health goal and a book shows up in the weekly review.
+Each module is a ready-made database, page templates and a small dashboard, installable from a module gallery and switchable on or off in Settings (see [Feature toggles](#feature-toggles)). They all link to areas, goals, tasks and daily notes, so a workout counts toward a Health goal and a book shows up in the weekly review.
 
 | Module | What it tracks | Key features | Connects to |
 | --- | --- | --- | --- |
-| Journal | Daily entries, mood, energy, gratitude | Prompts, mood and energy charts, "on this day" memories, private lock | Daily notes, reviews |
-| Health and fitness | Workouts, yoga, sleep, weight, water, meals | Workout logger with sets and reps, sleep vs energy chart, streaks | Health area, habits, goals |
+| Journal | Daily entries, mood, energy, gratitude, day rating | Prompts, mood log with a mood calendar, 1–5 day rating, mood and energy charts, month summary entry, brain-dump page, "on this day" memories, private lock | Daily notes, reviews, inbox |
+| Health and fitness | Workouts, yoga, sleep, weight, body measurements, water | Workout logger with sets and reps, sleep log and sleep vs energy chart, weight trend, body measurements (waist, chest, hips, body fat %), streaks | Health area, habits, goals |
+| Nutrition | Meals, calories, macros | Calorie counter with a daily target, food list with saved items, calorie history chart | Health, recipes and meals |
+| Cycle tracking | Menstrual cycle, symptoms, notes | Cycle calendar, period and phase predictions, symptom log; private and encrypted by default, off unless enabled | Health, journal, energy |
 | Learning | Courses, topics, skills, resources | Skill tree (JavaScript, TypeScript, React, AI…), study sessions, flashcards | Frontend area, time tracking, goals |
 | Reading and media | Books, articles, podcasts, movies, games | Reading list board, pages-per-day progress, highlights and quotes, ratings | Book goal, Entertainment area |
-| Finance | Income, expenses, budgets, subscriptions, savings goals | Categories, monthly budget vs actual, recurring bills, net worth; in toman or dollars | Goals, monthly review |
+| Finance | Accounts, income, expenses, budgets, subscriptions, loans, installments, savings goals | Multiple accounts with transfers, custom categories, monthly budget vs actual, custom start day for the financial month, recurring bills, loans borrowed and lent, installment scheduler with remaining balance and due-date reminders, transaction history, net worth; in toman or dollars | Goals, monthly review, notifications |
 | People (personal CRM) | Friends, family, mentors, contacts | Last contact, "reach out every N weeks", birthdays (Shamsi-aware), notes per meeting | Tasks, calendar, daily notes |
 | Startup / work | Ideas, experiments, customers, metrics, decisions | Idea inbox with scoring, experiment log, decision records, KPI tracking | Startup MVP project |
 | Career | Applications, interviews, portfolio, skills gaps | Job pipeline board, interview prep notes, resume versions | Career area, learning |
 | Home and life admin | Chores, documents, warranties, shopping | Recurring chores, document vault with expiry reminders | Tasks, notifications |
 | Travel | Trips, packing lists, itineraries | Trip pages with checklists and day-by-day plan | Calendar, finance |
 | Recipes and meals | Recipes, meal plans, grocery lists | Weekly meal plan generating a shopping list | Health, home |
+| Challenges | Time-boxed challenges with a numeric target | Monthly challenges (e.g. "read 300 pages", "30 workouts"), daily progress entries, progress bar, end-of-month result | Goals, habits, monthly review |
 | Ideas and wishlist | Future projects, things to buy, bucket list | Capture now, review monthly, promote an idea into a project | Inbox, projects |
 
 **Cross-module features**
@@ -127,6 +130,7 @@ The execution loop already works well; these additions make it deeper without ma
 
 - **Energy-aware planning:** tag tasks by energy (deep, shallow, admin) and match them to your high-energy hours.
 - **Time budgets per area:** "Frontend 8h this week" shown as a filling bar while you plan, not only after.
+- **Priority levels:** low, medium, high and urgent on every task, used by sorting and the scheduler.
 - **Priority matrix:** Eisenhower (urgent × important) board for the inbox and backlog.
 - **OKRs:** objectives with measurable key results, rolling up from goals and projects.
 - **Project templates:** e.g. "Learn a new library" creates the standard tasks and milestones.
@@ -135,7 +139,7 @@ The execution loop already works well; these additions make it deeper without ma
 
 **Doing**
 
-- **Focus mode:** full-screen current task, Pomodoro or custom intervals, distraction list, ambient sound.
+- **Focus mode:** full-screen current task, Pomodoro timer (focus, short break, long break) or custom intervals, focus time logged to the task, distraction list, ambient sound.
 - **Checklists inside blocks** and a "now / next / later" strip on mobile.
 - **Routines:** morning and evening routine checklists that feed habits.
 - **Waiting-for list** and delegated tasks with follow-up dates.
@@ -150,6 +154,19 @@ The execution loop already works well; these additions make it deeper without ma
 **Gamification (opt-in, gentle)**
 
 - XP per area, levels and milestones for long-term goals, a monthly "highlights" card; no punishment for missed days.
+- Choice of XP calculation mode (per task, per estimated minute, or per area weight).
+- An optional streak counter on the Today page for chosen habits or categories, shown next to the streak-free consistency score.
+
+## Feature toggles
+
+Every module and optional feature in this roadmap can be turned on or off by the user in **Settings → Features**, so the app stays as small as you want it to be.
+
+- **Per-module switches:** Journal, Health and fitness, Nutrition, Cycle tracking, Reading and media, Learning, Finance, People, Startup, Career, Home, Travel, Recipes, Challenges and Ideas each have their own toggle.
+- **Per-feature switches:** Pomodoro and focus mode, XP and levels, streak counter, mood log, day rating, priority matrix, AI assistant and each integration.
+- **Turning a feature off hides it, never deletes it.** Its navigation item, Today widgets, review prompts, analytics and notifications disappear, but its data is kept and comes back when you turn it on again.
+- **Sensible defaults:** a new install starts with the core planner (tasks, schedule, goals, habits, reviews) and suggests modules during onboarding; sensitive modules such as Cycle tracking and Finance start off.
+- **Feature presets** in onboarding (e.g. "Planner only", "Student", "Health focus", "Everything") that set many toggles at once.
+- Toggle state is part of the JSON backup and syncs across devices.
 
 ## Capture everywhere
 
@@ -217,9 +234,9 @@ Build the knowledge foundation first: capture, pages and links make every later 
 
 ```mermaid
 flowchart TB
-  p1["<b>Phase 1 · Foundation</b> (start here)<br/>Universal inbox, quick capture everywhere, installable offline PWA<br/>Pages with block editor, slash menu, nested page tree, templates<br/>Daily notes, wiki links and backlinks, full-text search"]
-  p2["<b>Phase 2 · Databases</b><br/>Custom databases with properties, relations, rollups and formulas<br/>Table, board, calendar, gallery and timeline views; saved filters<br/>First modules: Journal, Reading and media, Learning"]
-  p3["<b>Phase 3 · Life modules</b><br/>Health and fitness, Finance, People CRM, Startup, Career<br/>Life dashboard, wheel of life, area home pages<br/>Guided weekly review wizard, quarterly and annual reviews"]
+  p1["<b>Phase 1 · Foundation</b> (start here)<br/>Universal inbox, quick capture everywhere, installable offline PWA<br/>Pages with block editor, slash menu, nested page tree, templates<br/>Daily notes, wiki links and backlinks, full-text search<br/>Settings → Features toggles for every module and feature"]
+  p2["<b>Phase 2 · Databases</b><br/>Custom databases with properties, relations, rollups and formulas<br/>Table, board, calendar, gallery and timeline views; saved filters<br/>First modules: Journal (mood, day rating), Reading and media, Learning, Challenges<br/>Focus mode with Pomodoro timer, priority levels"]
+  p3["<b>Phase 3 · Life modules</b><br/>Health and fitness (sleep, weight, body measurements), Nutrition, Cycle tracking<br/>Finance (accounts, loans, installments), People CRM, Startup, Career<br/>Gentle gamification: XP, levels, optional streak counter<br/>Life dashboard, wheel of life, area home pages<br/>Guided weekly review wizard, quarterly and annual reviews"]
   p4["<b>Phase 4 · Sync and platform</b><br/>Accounts, end-to-end encrypted sync, automatic backups<br/>Google and Apple calendar sync, Telegram capture, web clipper<br/>Full Persian RTL interface, app lock, Notion and Obsidian import"]
   p5["<b>Phase 5 · AI second brain</b><br/>Semantic search and ask-your-notes answers with citations<br/>Plan my week and re-planning, always as proposals to confirm<br/>Summaries, flashcards, draft reviews and monthly insights"]
   p1 --> p2 --> p3 --> p4 --> p5
@@ -232,6 +249,8 @@ Each phase ships something usable on its own. Sync moves earlier (right after Ph
 - [ ] Inbox page and a "capture to inbox" default in `⌘K`
 - [ ] Notes field on tasks rendered as markdown, with `[[links]]` to other tasks
 - [ ] Daily note text box on the Today page, saved per day
+- [ ] Mood and 1–5 day rating in the daily review, next to the existing energy rating
+- [ ] A Settings → Features page with the first on/off switches
 - [ ] Reading list board (a first simple database) linked to the Book goal
 - [ ] Installable PWA manifest and service worker for offline use
 
@@ -250,5 +269,7 @@ The current codebase already has the right seams (a storage-agnostic `DataStore`
 6. **Sync:** move from plain IndexedDB to a local-first sync engine (Yjs or Automerge for page content; ElectricSQL, PowerSync or Replicache for records) backed by PostgreSQL, implemented as a new `DataStore`.
 7. **Schema migrations:** add a version to every stored entity and a migration runner, since old exports and devices will carry older shapes.
 8. **Modules as packages:** each life module = its database schemas, templates, dashboard widget and optional analytics, registered in one place so it can be turned on or off.
+    - A single `features` map in settings (module or feature id → enabled) that navigation, widgets, reviews, analytics and notifications all read from.
+    - Disabling a feature only hides it; its stored data is untouched.
 9. **AI boundary:** one service that builds context from allowed areas only and returns `PlanChange` proposals, reusing the existing confirm-and-apply flow.
 10. **Performance:** virtualised lists and tables, lazy-loaded page content, and background indexing so the app stays fast with thousands of notes.
