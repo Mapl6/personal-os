@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="src/app/icon.svg" alt="Personal OS logo: a day dial of four time blocks around a dot, with one block pulled out of the ring" width="88" />
+
 # Personal OS
 
 **A calm, local-first operating system for planning, doing and reviewing your days, weeks and months.**
