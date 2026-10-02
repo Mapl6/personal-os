@@ -13,7 +13,7 @@ import { useAction } from "@/hooks/use-action";
 import { formatTime, parseTime } from "@/lib/date";
 import { cn } from "@/lib/utils/cn";
 import { getServices } from "@/services";
-import { DEFAULT_AREAS, DEFAULT_WEEKLY_GOALS, setupWorkspace, type WeeklyGoalSetup } from "@/services/seed";
+import { DEFAULT_AREAS, DEFAULT_WEEKLY_GOALS, demoWorkspace, setupWorkspace, type WeeklyGoalSetup } from "@/services/seed";
 
 const STEPS = ["Welcome", "Working days", "Hours", "Areas", "Weekly goals", "Finish"] as const;
 
@@ -47,6 +47,19 @@ export function Onboarding() {
     { invalidate: ["all"], success: "You're all set. Plans are hypotheses — adjust freely." },
   );
 
+  const demo = useAction(() => setupWorkspace(getServices(), demoWorkspace(Intl.DateTimeFormat().resolvedOptions().timeZone)), {
+    invalidate: ["all"],
+    success: "Exploring with example data. Delete it any time in Settings → Data.",
+    onSuccess: () => window.history.replaceState(null, "", window.location.pathname),
+  });
+  // `/?demo=1` skips setup. Onboarding only renders before setup, so existing data is never touched.
+  const demoStarted = React.useRef(false);
+  React.useEffect(() => {
+    if (demoStarted.current || !new URLSearchParams(window.location.search).has("demo")) return;
+    demoStarted.current = true;
+    demo.mutate();
+  }, [demo]);
+
   const trimmedArea = newArea.trim();
   const areaExists = [...DEFAULT_AREAS.map((a) => a.name), ...customAreas].some(
     (n) => n.toLocaleLowerCase() === trimmedArea.toLocaleLowerCase(),
@@ -64,6 +77,14 @@ export function Onboarding() {
 
   const valid =
     step === 1 ? days.length > 0 : step === 2 ? (parseTime(start) ?? 0) < (parseTime(end) ?? 0) : step === 3 ? areas.length > 0 : true;
+
+  if (demo.isPending) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center p-4 text-sm text-muted-foreground" aria-busy>
+        Loading the demo…
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-dvh items-center justify-center p-4">
@@ -242,9 +263,15 @@ export function Onboarding() {
         )}
 
         <div className="mt-8 flex justify-between">
-          <Button variant="ghost" onClick={() => setStep((s) => s - 1)} disabled={step === 0}>
-            <ArrowLeft /> Back
-          </Button>
+          {step === 0 ? (
+            <Button variant="ghost" onClick={() => demo.mutate()}>
+              Try the demo
+            </Button>
+          ) : (
+            <Button variant="ghost" onClick={() => setStep((s) => s - 1)}>
+              <ArrowLeft /> Back
+            </Button>
+          )}
           {step < STEPS.length - 1 ? (
             <Button onClick={() => setStep((s) => s + 1)} disabled={!valid}>
               Continue <ArrowRight />

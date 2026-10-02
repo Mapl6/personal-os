@@ -14,10 +14,13 @@ Plan → Execute → Track → Review → Adjust. Plans are hypotheses: moving a
 [![Shamsi calendar](https://img.shields.io/badge/calendar-Gregorian%20%7C%20Shamsi-10b981)](#-shamsi--persian-calendar)
 [![Tests](https://img.shields.io/badge/tests-Vitest%20%2B%20Playwright-f59e0b)](#-testing)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/Mapl6/personal-os?style=social)](https://github.com/Mapl6/personal-os/stargazers)
+
+**[▶ Try the live demo](https://personal-os-nine-lime.vercel.app/?demo=1)** · [Open the app](https://personal-os-nine-lime.vercel.app) · [Public roadmap](https://personal-os-nine-lime.vercel.app/roadmap)
 
 [Features](#-features) · [Screenshots](#-screenshots) · [Quick start](#-quick-start) · [Shamsi calendar](#-shamsi--persian-calendar) · [Architecture](#-architecture) · [Roadmap](#-roadmap)
 
-<img src="docs/screenshots/dashboard-dark.png" alt="Personal OS dashboard in dark mode: today's progress ring, a drag-and-drop timeline, unscheduled tasks, weekly goals and a focus timer" width="100%" />
+<img src="docs/screenshots/demo.gif" alt="A short tour of Personal OS: the dashboard, adding 'Gym Thursday 18:00' with Quick Add, the week calendar, the week board, analytics and the public roadmap" width="100%" />
 
 </div>
 
@@ -55,6 +58,8 @@ It optimises for **consistency, clarity, flexibility, realistic planning and lon
 
 ## 📸 Screenshots
 
+<p align="center"><img src="docs/screenshots/dashboard-dark.png" alt="Personal OS dashboard in dark mode: today's progress ring, a drag-and-drop timeline, unscheduled tasks, weekly goals and a focus timer" width="100%" /><br/><sub><b>Dashboard</b>: progress, timeline, unscheduled tasks and weekly goals</sub></p>
+
 <table>
   <tr>
     <td width="50%"><img src="docs/screenshots/today-dark.png" alt="Today view with timeline and unscheduled tasks" /><br/><sub><b>Today</b>: timeline and unscheduled tasks</sub></td>
@@ -83,7 +88,7 @@ npm install
 npm run dev
 ```
 
-Open <http://localhost:3000>. A short setup asks for your name, calendar (Gregorian or Shamsi), working days and hours, life areas and weekly goals, then creates a default **Normal Week** template. Turn on **Include example data** to explore with sample projects, tasks, habits and three weeks of history.
+Open <http://localhost:3000>. A short setup asks for your name, calendar (Gregorian or Shamsi), working days and hours, life areas and weekly goals, then creates a default **Normal Week** template. Turn on **Include example data** to explore with sample projects, tasks, habits and three weeks of history, or skip setup entirely with **Try the demo** (or open [`/?demo=1`](https://personal-os-nine-lime.vercel.app/?demo=1)). The demo only runs in a browser that hasn't been set up, so it never touches existing data.
 
 | Script | What it does |
 |---|---|
@@ -164,11 +169,15 @@ The long-term plan to grow this into a full **second brain and life OS** (pages 
 
 ## 🤝 Contributing
 
-Issues and pull requests are welcome. Before opening a PR, run:
+Issues and pull requests are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md), pick an issue labelled [good first issue](https://github.com/Mapl6/personal-os/labels/good%20first%20issue), or ask in [Discussions](https://github.com/Mapl6/personal-os/discussions). Before opening a PR, run:
 
 ```bash
 npm run typecheck && npm run lint && npm test && npm run test:e2e
 ```
+
+## ⭐ Support
+
+If Personal OS is useful to you, a star on GitHub helps other people find it.
 
 ## 📄 License
 
