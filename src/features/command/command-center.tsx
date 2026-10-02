@@ -6,6 +6,7 @@ import {
   CalendarArrowUp,
   CalendarClock,
   CheckSquare,
+  Map as MapIcon,
   Moon,
   NotebookPen,
   Pause,
@@ -255,6 +256,9 @@ function CommandBody() {
                   )}
                 </CommandItem>
               ))}
+              <CommandItem value="go roadmap planned features" onSelect={() => go("/roadmap")}>
+                <MapIcon /> Roadmap
+              </CommandItem>
             </CommandGroup>
             {search.trim().length > 0 && (
               <CommandGroup heading="Tasks">

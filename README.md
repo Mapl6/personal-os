@@ -134,7 +134,7 @@ flowchart LR
 
 ```
 src/
-  app/            Next.js App Router (thin pages)
+  app/            Next.js App Router (thin pages): (app)/ is the planner behind onboarding, (public)/roadmap is public
   features/       dashboard · today · calendar · week · month · tasks · goals · …
   components/     ui (shadcn/ui on Radix) · layout · shared
   services/       use-cases over the DataStore
@@ -160,7 +160,7 @@ e2e/              Playwright flows
 - [ ] Optional backend: accounts, PostgreSQL and sync across devices
 - [ ] AI planning assistant: "Plan my week", "I only have 4 hours today", always propose → confirm → apply
 
-The long-term plan to grow this into a full **second brain and life OS** (pages and notes, databases, life modules, capture everywhere, sync and AI) is in [docs/ROADMAP.md](docs/ROADMAP.md).
+The long-term plan to grow this into a full **second brain and life OS** (pages and notes, databases, life modules, capture everywhere, sync and AI) is in [docs/ROADMAP.md](docs/ROADMAP.md), with the full [feature catalogue](docs/features/README.md), [technical design docs](docs/technical/README.md) and a [competitive analysis](docs/research/competitive-analysis.md). The app also serves a public, interactive version at **`/roadmap`**: every feature by phase, comparing the app today with each phase up to complete. It is built from `docs/features/` at build time and needs no onboarding.
 
 ## 🤝 Contributing
 
