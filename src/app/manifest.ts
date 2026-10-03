@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Plan, execute, track and review your days, weeks and months.",
     start_url: "/",
     display: "standalone",
-    background_color: "#16171c",
-    theme_color: "#16171c",
+    background_color: "#121212",
+    theme_color: "#121212",
     icons: [
       {
         src: "/icon-192.png",
