@@ -6,6 +6,7 @@
  */
 
 const ARABIC_TO_PERSIAN: Record<string, string> = {
+  "ى": "ی",
   "ي": "ی",
   "ك": "ک",
   "ة": "ه",
@@ -34,19 +35,20 @@ function toLatinDigits(input: string): string {
  * removed, digits unified to Latin, Latin lowercased with accents stripped.
  */
 export function normalizeText(input: string): string {
-  let out = input;
-  // Arabic → Persian letters
-  out = out.replace(/[يكةؤأإآ]/g, (ch) => ARABIC_TO_PERSIAN[ch] ?? ch);
+  // NFKD first: split precomposed characters (e.g. ئ → ي + hamza above)
+  // so letter mapping and diacritic removal see the decomposed parts.
+  let out = input.normalize("NFKD");
+  // Arabic → Persian letters (ى = alef maksura U+0649)
+  out = out.replace(/[يكىةؤأإآ]/g, (ch) => ARABIC_TO_PERSIAN[ch] ?? ch);
   // Remove diacritics (Arabic harakat) and tatweel (kashida)
   out = out.replace(/[ً-ٰٟـ]/g, "");
   // Digits → Latin
   out = toLatinDigits(out);
-  // Latin: lowercase + strip accents
-  out = out
-    .normalize("NFKD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase();
+  // Latin: lowercase + strip accents (NFKD already applied above)
+  out = out.replace(/[̀-ͯ]/g, "").toLowerCase();
   return out;
+}
+
 }
 
 /**
