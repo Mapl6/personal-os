@@ -10,6 +10,7 @@ const ARABIC_TO_PERSIAN: Record<string, string> = {
   "ي": "ی",
   "ك": "ک",
   "ة": "ه",
+  "ە": "ه", // U+06D5 (NFKD of ۀ) → ه
   "ؤ": "و",
   "أ": "ا",
   "إ": "ا",
@@ -39,7 +40,7 @@ export function normalizeText(input: string): string {
   // so letter mapping and diacritic removal see the decomposed parts.
   let out = input.normalize("NFKD");
   // Arabic → Persian letters (ى = alef maksura U+0649)
-  out = out.replace(/[يكىةؤأإآ]/g, (ch) => ARABIC_TO_PERSIAN[ch] ?? ch);
+out = out.replace(/[يكىةەؤأإآ]/g, (ch) => ARABIC_TO_PERSIAN[ch] ?? ch);
   // Remove diacritics (Arabic harakat) and tatweel (kashida)
   out = out.replace(/[ً-ٰٟـ]/g, "");
   // Digits → Latin
@@ -48,7 +49,6 @@ export function normalizeText(input: string): string {
   out = out.replace(/[̀-ͯ]/g, "").toLowerCase();
   return out;
 }
-
 }
 
 /**
