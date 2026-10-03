@@ -49,7 +49,6 @@ out = out.replace(/[يكىةەؤأإآ]/g, (ch) => ARABIC_TO_PERSIAN[ch] ?? ch);
   out = out.replace(/[̀-ͯ]/g, "").toLowerCase();
   return out;
 }
-}
 
 /**
  * Return both the joined and space-split forms of words containing a
