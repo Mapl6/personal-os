@@ -20,7 +20,7 @@ export function DialogContent({
       <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/60 data-[state=open]:animate-fade-in" />
       <DialogPrimitive.Content
         className={cn(
-          "fixed left-1/2 top-[max(1rem,8vh)] z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-1.5rem)] max-w-lg -translate-x-1/2 flex-col overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-2xl shadow-black/40 data-[state=open]:animate-scale-in",
+          "fixed left-1/2 top-[max(1rem,8vh)] z-50 flex max-h-[calc(100dvh-max(1rem,8vh)-1rem)] w-[calc(100vw-1.5rem)] max-w-lg -translate-x-1/2 flex-col overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-2xl shadow-black/40 data-[state=open]:animate-scale-in",
           className,
         )}
         {...props}
@@ -42,7 +42,7 @@ export function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLD
 }
 
 export function DialogBody({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("overflow-y-auto px-5 pb-4 scrollbar-thin", className)} {...props} />;
+  return <div className={cn("min-h-0 flex-1 overflow-y-auto px-5 pb-4 scrollbar-thin", className)} {...props} />;
 }
 
 export function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
