@@ -5,7 +5,9 @@ import {
   CheckSquare,
   Compass,
   FolderKanban,
-  LayoutDashboard,
+  House,
+  Layers,
+  ChartLine,
   NotebookPen,
   Repeat,
   Settings,
@@ -24,7 +26,7 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: NavItem[] = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard, shortcut: "d" },
+  { href: "/", label: "Home", icon: House, shortcut: "d" },
   { href: "/today", label: "Today", icon: Sun, shortcut: "t" },
   { href: "/calendar", label: "Calendar", icon: CalendarClock, shortcut: "c" },
   { href: "/week", label: "Week", icon: CalendarRange, shortcut: "w" },
@@ -39,18 +41,53 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/settings", label: "Settings", icon: Settings, shortcut: "s" },
 ];
 
-export const MOBILE_PRIMARY = ["/", "/today", "/week", "/tasks"];
+/**
+ * Spaces group related pages so the sidebar stays short: a space links to its
+ * first page and shows the rest as tabs (SpaceTabs). Every page keeps its own
+ * route, so links, shortcuts and bookmarks keep working.
+ */
+export interface NavSpace {
+  /** Stable id, stored in settings.customization.navOrder / hiddenNav. */
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  /** Pages in this space, in tab order. The first one is where the space opens. */
+  pages: string[];
+}
+
+export const NAV_SPACES: NavSpace[] = [
+  { href: "/", label: "Home", icon: House, pages: ["/"] },
+  { href: "/today", label: "Today", icon: Sun, pages: ["/today"] },
+  { href: "/calendar", label: "Plan", icon: CalendarRange, pages: ["/calendar", "/week", "/month"] },
+  { href: "/tasks", label: "Tasks", icon: CheckSquare, pages: ["/tasks"] },
+  { href: "/goals", label: "Life", icon: Layers, pages: ["/goals", "/projects", "/areas", "/habits"] },
+  { href: "/analytics", label: "Insights", icon: ChartLine, pages: ["/analytics", "/reviews"] },
+  { href: "/settings", label: "Settings", icon: Settings, pages: ["/settings"] },
+];
+
+/** Tab labels inside a space, where they differ from the page's own nav label. */
+export const SPACE_TAB_LABELS: Record<string, string> = { "/week": "Week plan", "/month": "Month plan" };
+
+export const MOBILE_PRIMARY = ["/", "/today", "/calendar", "/tasks"];
 
 export function isActive(pathname: string, href: string) {
   return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 }
 
-/** Applies the user's order + visibility. Settings can never be hidden. */
-export function orderNavItems(order: string[], hidden: string[]): NavItem[] {
-  const byHref = new Map(NAV_ITEMS.map((n) => [n.href, n]));
+export function navItem(href: string): NavItem | undefined {
+  return NAV_ITEMS.find((n) => n.href === href);
+}
+
+export function spaceOf(pathname: string): NavSpace | undefined {
+  return NAV_SPACES.find((s) => s.pages.some((p) => isActive(pathname, p)));
+}
+
+/** Applies the user's order + visibility to spaces. Settings can never be hidden. */
+export function orderNavSpaces(order: string[], hidden: string[]): NavSpace[] {
+  const byHref = new Map(NAV_SPACES.map((n) => [n.href, n]));
   const ordered = [
-    ...order.map((h) => byHref.get(h)).filter((n): n is NavItem => !!n),
-    ...NAV_ITEMS.filter((n) => !order.includes(n.href)),
+    ...order.map((h) => byHref.get(h)).filter((n): n is NavSpace => !!n),
+    ...NAV_SPACES.filter((n) => !order.includes(n.href)),
   ];
   return ordered.filter((n) => n.href === "/settings" || !hidden.includes(n.href));
 }

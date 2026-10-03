@@ -1,6 +1,6 @@
 "use client";
 
-import { Command, Plus } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import * as React from "react";
 import { Logo } from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import { ui } from "@/store/ui-store";
 import { BottomNav } from "./bottom-nav";
 import { GlobalShortcuts } from "./shortcuts";
 import { Sidebar } from "./sidebar";
+import { SpaceTabs } from "./space-tabs";
 import { ThemeSync } from "./theme-sync";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -40,7 +41,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (isLoading) {
     return (
       <div className="flex min-h-dvh" aria-busy>
-        <div className="hidden w-60 border-r border-border md:block" />
+        <div className="hidden w-60 border-r border-border bg-surface md:block" />
         <div className="flex-1 space-y-4 p-8">
           <Skeleton className="h-8 w-56" />
           <Skeleton className="h-28 w-full" />
@@ -66,22 +67,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </a>
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-background/90 px-4 py-2.5 backdrop-blur md:hidden">
-          <span className="flex items-center gap-2 text-sm font-semibold">
+        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-surface px-4 py-2.5 md:hidden">
+          <span className="flex items-center gap-2 text-[15px] font-semibold">
             <Logo className="size-6" />
             Personal OS
           </span>
           <div className="flex gap-1">
             <ThemeToggle />
-            <Button size="icon-sm" variant="ghost" onClick={() => ui.openCommand()} aria-label="Open command center">
-              <Command />
+            <Button size="icon-sm" variant="ghost" onClick={() => ui.openCommand()} aria-label="Search">
+              <Search />
             </Button>
             <Button size="icon-sm" variant="ghost" onClick={() => ui.newTask()} aria-label="New task">
               <Plus />
             </Button>
           </div>
         </header>
-        <main key={calendarKey} id="main" className="mx-auto w-full max-w-[1440px] flex-1 px-4 pb-36 pt-5 md:px-6 md:pb-10 lg:px-8">
+        <main key={calendarKey} id="main" className="mx-auto w-full max-w-[1440px] flex-1 px-4 pb-36 pt-4 md:px-6 md:pb-12 md:pt-6 lg:px-8">
+          <SpaceTabs />
           {children}
         </main>
       </div>

@@ -16,7 +16,7 @@ export function DropdownMenuContent({ className, sideOffset = 4, ...props }: Rea
       <P.Content
         sideOffset={sideOffset}
         className={cn(
-          "z-50 min-w-44 overflow-hidden rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-xl shadow-black/20 data-[state=open]:animate-scale-in",
+          "z-50 min-w-44 overflow-hidden rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-xl shadow-black/30 data-[state=open]:animate-scale-in",
           className,
         )}
         {...props}
@@ -62,7 +62,7 @@ export function DropdownMenuSubContent({ className, ...props }: React.ComponentP
   return (
     <P.Portal>
       <P.SubContent
-        className={cn("z-50 min-w-40 rounded-lg border border-border bg-popover p-1 shadow-xl shadow-black/20", className)}
+        className={cn("z-50 min-w-40 rounded-lg border border-border bg-popover p-1 shadow-xl shadow-black/30", className)}
         {...props}
       />
     </P.Portal>

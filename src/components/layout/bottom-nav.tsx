@@ -8,28 +8,51 @@ import { TimerWidget } from "@/features/time-tracking/timer-widget";
 import { cn } from "@/lib/utils/cn";
 import { ui, uiStore } from "@/store/ui-store";
 import { useSettings } from "@/hooks/queries";
-import { MOBILE_PRIMARY, NAV_ITEMS, isActive, orderNavItems } from "./nav-items";
+import { MOBILE_PRIMARY, NAV_SPACES, SPACE_TAB_LABELS, isActive, navItem, orderNavSpaces, spaceOf, type NavSpace } from "./nav-items";
 
-/** Mobile navigation: four primary tabs, a central add button and a "More" sheet. */
+/** Mobile navigation: four primary spaces, a central add button and a "More" sheet listing every page by space. */
 export function BottomNav() {
   const pathname = usePathname();
   const moreOpen = uiStore.useStore((s) => s.mobileNavOpen);
   const { settings } = useSettings();
-  const navItems = orderNavItems(settings.customization.navOrder, settings.customization.hiddenNav);
-  const primary = NAV_ITEMS.filter((n) => MOBILE_PRIMARY.includes(n.href));
+  const spaces = orderNavSpaces(settings.customization.navOrder, settings.customization.hiddenNav);
+  const primary = NAV_SPACES.filter((n) => MOBILE_PRIMARY.includes(n.href));
   const [first, second] = [primary.slice(0, 2), primary.slice(2)];
+  const current = spaceOf(pathname)?.href;
+  const moreActive = !!current && !MOBILE_PRIMARY.includes(current);
 
-  const tab = (item: (typeof NAV_ITEMS)[number]) => {
-    const active = isActive(pathname, item.href);
+  const tab = (space: NavSpace) => {
+    const active = current === space.href;
     return (
       <Link
-        key={item.href}
-        href={item.href}
+        key={space.href}
+        href={space.href}
         aria-current={active ? "page" : undefined}
-        className={cn("flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium", active ? "text-primary" : "text-muted-foreground")}
+        className={cn("flex flex-1 flex-col items-center gap-1 py-2 text-[11px] font-medium", active ? "text-primary" : "text-muted-foreground")}
       >
-        <item.icon className="size-5" aria-hidden />
-        {item.label}
+        <space.icon className="size-5" aria-hidden />
+        {space.label}
+      </Link>
+    );
+  };
+
+  const pageLink = (href: string) => {
+    const item = navItem(href);
+    if (!item) return null;
+    const active = isActive(pathname, href);
+    return (
+      <Link
+        key={href}
+        href={href}
+        onClick={() => ui.setMobileNav(false)}
+        aria-current={active ? "page" : undefined}
+        className={cn(
+          "flex h-11 items-center gap-2.5 rounded-lg border px-3 text-sm",
+          active ? "border-primary/60 bg-primary/10 text-foreground" : "border-border bg-card text-foreground",
+        )}
+      >
+        <item.icon className={cn("size-4", active ? "text-primary" : "text-muted-foreground")} aria-hidden />
+        {SPACE_TAB_LABELS[href] ?? item.label}
       </Link>
     );
   };
@@ -39,7 +62,7 @@ export function BottomNav() {
       <div className="fixed inset-x-3 bottom-[76px] z-30 md:hidden">
         <TimerWidget variant="floating" />
       </div>
-      <nav aria-label="Main navigation" className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 pb-safe backdrop-blur md:hidden">
+      <nav aria-label="Main navigation" className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface pb-safe md:hidden">
         <div className="flex items-stretch">
           {first.map(tab)}
           <div className="flex flex-1 items-center justify-center">
@@ -47,7 +70,7 @@ export function BottomNav() {
               type="button"
               onClick={() => ui.newTask()}
               aria-label="New task"
-              className="flex size-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/20 active:scale-95"
+              className="flex size-11 items-center justify-center rounded-xl bg-primary text-primary-foreground active:scale-95"
             >
               <Plus className="size-5" />
             </button>
@@ -56,7 +79,7 @@ export function BottomNav() {
           <button
             type="button"
             onClick={() => ui.setMobileNav(true)}
-            className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium text-muted-foreground"
+            className={cn("flex flex-1 flex-col items-center gap-1 py-2 text-[11px] font-medium", moreActive ? "text-primary" : "text-muted-foreground")}
             aria-haspopup="dialog"
           >
             <Menu className="size-5" aria-hidden />
@@ -65,23 +88,18 @@ export function BottomNav() {
         </div>
       </nav>
       <Sheet open={moreOpen} onOpenChange={ui.setMobileNav}>
-        <SheetContent side="bottom" className="p-4">
-          <SheetTitle className="mb-3 text-sm font-semibold">Navigate</SheetTitle>
-          <div className="grid grid-cols-3 gap-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => ui.setMobileNav(false)}
-                className={cn(
-                  "flex flex-col items-center gap-1.5 rounded-xl border border-border py-3 text-xs",
-                  isActive(pathname, item.href) ? "border-primary/50 bg-primary/10 text-primary" : "text-muted-foreground",
-                )}
-              >
-                <item.icon className="size-5" aria-hidden />
-                {item.label}
-              </Link>
-            ))}
+        <SheetContent side="bottom" className="max-h-[80dvh] overflow-y-auto p-5">
+          <SheetTitle className="mb-4 text-base font-semibold">Go to</SheetTitle>
+          <div className="space-y-5">
+            <div className="grid grid-cols-2 gap-2">{spaces.filter((sp) => sp.pages.length === 1).map((sp) => pageLink(sp.pages[0]))}</div>
+            {spaces
+              .filter((sp) => sp.pages.length > 1)
+              .map((space) => (
+                <section key={space.href}>
+                  <h3 className="mb-2 text-[13px] font-medium text-muted-foreground">{space.label}</h3>
+                  <div className="grid grid-cols-2 gap-2">{space.pages.map(pageLink)}</div>
+                </section>
+              ))}
           </div>
         </SheetContent>
       </Sheet>

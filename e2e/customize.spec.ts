@@ -28,11 +28,11 @@ test("theme toggle switches to light and persists", async ({ page }) => {
 test("customize navigation, dashboard and priority names", async ({ page }) => {
   await onboard(page);
   await page.goto("/settings#customize");
-  await page.getByRole("checkbox", { name: "Show Habits" }).click();
+  await page.getByRole("checkbox", { name: "Show Insights" }).click();
   await page.getByRole("checkbox", { name: "Show Today’s habits" }).click();
   await page.getByRole("textbox").filter({ hasText: "" }).and(page.locator('input[value="High"]')).fill("Must");
   const sidebar = page.getByRole("complementary", { name: "Main navigation" });
-  await expect(sidebar.getByRole("link", { name: "Habits" })).toHaveCount(0);
+  await expect(sidebar.getByRole("link", { name: "Insights" })).toHaveCount(0);
   await page.goto("/");
   await expect(page.getByText("Today’s habits")).toHaveCount(0);
   await page.keyboard.press("n");

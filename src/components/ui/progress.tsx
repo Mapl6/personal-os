@@ -24,8 +24,8 @@ export function Progress({
       className={cn("h-1.5 w-full overflow-hidden rounded-full bg-muted", className)}
     >
       <div
-        className={cn("h-full rounded-full bg-primary transition-[width] duration-500 ease-out", indicatorClassName)}
-        style={{ width: `${v}%`, ...(color ? { background: color } : {}) }}
+        className={cn("h-full w-full origin-left rounded-full bg-primary transition-transform duration-500 ease-out", indicatorClassName)}
+        style={{ transform: `scaleX(${v / 100})`, ...(color ? { background: color } : {}) }}
       />
     </div>
   );

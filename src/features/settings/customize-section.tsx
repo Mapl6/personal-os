@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input, NativeSelect } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { NAV_ITEMS, orderNavItems } from "@/components/layout/nav-items";
+import { NAV_SPACES, orderNavSpaces } from "@/components/layout/nav-items";
 import { REVIEW_QUESTIONS } from "@/features/reviews/questions";
 import { useAction } from "@/hooks/use-action";
 import { useAreas, useHabits } from "@/hooks/queries";
@@ -71,10 +71,10 @@ export function CustomizeSection({ value, onChange }: { value: Customization; on
         />
       </Block>
 
-      <Block title="Navigation" hint="Reorder or hide sidebar items. Hidden pages stay reachable from ⌘K.">
+      <Block title="Navigation" hint="Reorder or hide sidebar spaces. Pages inside a space appear as tabs; hidden spaces stay reachable from ⌘K.">
         <OrderList
           label="Navigation items"
-          items={orderNavItems(value.navOrder, []).map((n) => ({
+          items={orderNavSpaces(value.navOrder, []).map((n) => ({
             id: n.href,
             label: n.label,
             visible: !value.hiddenNav.includes(n.href),
@@ -88,7 +88,7 @@ export function CustomizeSection({ value, onChange }: { value: Customization; on
             })
           }
         />
-        <Button size="xs" variant="ghost" onClick={() => onChange({ ...value, navOrder: NAV_ITEMS.map((n) => n.href), hiddenNav: [] })}>
+        <Button size="xs" variant="ghost" onClick={() => onChange({ ...value, navOrder: NAV_SPACES.map((n) => n.href), hiddenNav: [] })}>
           <RotateCcw /> Reset navigation
         </Button>
       </Block>

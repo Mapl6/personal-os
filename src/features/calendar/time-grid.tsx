@@ -93,7 +93,7 @@ export function TimeGrid({
 
       {(hasAnytime || days.length === 1) && (
         <div className="flex border-b border-border">
-          <div className="flex w-12 shrink-0 items-center justify-end pr-2 text-[10px] uppercase tracking-wide text-muted-foreground">
+          <div className="flex w-12 shrink-0 items-center justify-end pr-2 text-[11px] text-muted-foreground">
             Any
           </div>
           {days.map((d) => (
@@ -106,7 +106,7 @@ export function TimeGrid({
         <div className="w-12 shrink-0" aria-hidden>
           {hours.map((m) => (
             <div key={m} style={{ height: hourHeight }} className="relative">
-              <span className="absolute -top-2 right-2 text-[10px] text-muted-foreground tabular">{formatTime(m)}</span>
+              <span className="absolute -top-2 right-2 text-[11px] text-muted-foreground tabular">{formatTime(m)}</span>
             </div>
           ))}
         </div>
@@ -250,7 +250,7 @@ function DayColumn({
           className="pointer-events-none absolute inset-x-1 z-30 rounded-md border-2 border-dashed border-primary/70 bg-primary/10"
           style={{ top: (preview.minutes - gridStart) * pxPerMinute, height: Math.max(18, preview.duration * pxPerMinute) }}
         >
-          <span className="absolute -top-5 left-0 rounded bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground tabular">
+          <span className="absolute -top-5 left-0 rounded bg-primary px-1.5 py-0.5 text-[11px] font-medium text-primary-foreground tabular">
             {formatTime(preview.minutes)}–{formatTime(preview.minutes + preview.duration)}
           </span>
         </div>
@@ -374,7 +374,7 @@ function TimelineBlock({
         }
       />
       {previewDuration !== null && (
-        <span className="absolute -bottom-5 left-1 z-40 rounded bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground tabular">
+        <span className="absolute -bottom-5 left-1 z-40 rounded bg-primary px-1.5 py-0.5 text-[11px] font-medium text-primary-foreground tabular">
           {formatDuration(previewDuration)}
         </span>
       )}

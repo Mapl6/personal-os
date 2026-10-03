@@ -6,7 +6,7 @@ import * as React from "react";
 import { AreaDot } from "@/components/shared/area";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
-import { Ring, Stat } from "@/components/shared/stat";
+import { Stat } from "@/components/shared/stat";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -160,13 +160,13 @@ export function MonthView() {
               {data.projects.length === 0 ? (
                 <EmptyState compact icon={FolderKanban} title="No projects yet." action={<Button asChild size="sm" variant="secondary"><Link href="/projects">Create project</Link></Button>} />
               ) : (
-                <ul className="grid gap-3 sm:grid-cols-2">
+                <ul className="-mx-2 divide-y divide-border">
                   {data.projects.map((p) => {
                     const area = p.project.areaId ? lookups.areaById.get(p.project.areaId) : undefined;
                     const dueThisMonth = p.project.deadline && isInRange(p.project.deadline, data.range);
                     return (
                       <li key={p.project.id}>
-                        <Link href={`/projects/${p.project.id}`} className="block rounded-lg border border-border p-3 transition-colors hover:bg-accent/40">
+                        <Link href={`/projects/${p.project.id}`} className="block rounded-md px-2 py-3 transition-colors hover:bg-accent">
                           <div className="flex items-center justify-between gap-2">
                             <span className="flex items-center gap-1.5 truncate text-sm font-medium">
                               <AreaDot color={area?.color} /> {p.project.name}
@@ -189,19 +189,18 @@ export function MonthView() {
         </div>
 
         <aside className="space-y-4">
-          <Card className="p-4">
-            <div className="flex items-center gap-4">
-              <Ring value={data.summary.completionPercent} size={72} label={`Overall completion ${data.summary.completionPercent}%`} />
-              <div>
-                <div className="text-sm font-medium">Overall completion</div>
-                <div className="text-xs text-muted-foreground tabular">
-                  {formatHours(data.summary.completedMinutes)} of {formatHours(data.summary.plannedMinutes)} planned
-                </div>
-                <div className="text-xs text-muted-foreground tabular">{data.summary.tasksCompleted} tasks finished</div>
-              </div>
-            </div>
-          </Card>
-          <div className="grid grid-cols-2 gap-2">
+          <Stat
+            label="Overall completion"
+            value={`${data.summary.completionPercent}%`}
+            tone="primary"
+            hint={
+              <>
+                <Progress value={data.summary.completionPercent} className="mb-2 h-1" label={`Overall completion ${data.summary.completionPercent}%`} />
+                {formatHours(data.summary.completedMinutes)} of {formatHours(data.summary.plannedMinutes)} planned · {data.summary.tasksCompleted} tasks finished
+              </>
+            }
+          />
+          <div className="grid grid-cols-2 gap-4">
             <Stat label="Actual time" value={formatHours(data.summary.actualMinutes)} />
             <Stat label="Consistency" value={`${data.summary.consistencyPercent}%`} hint={`${data.summary.activeDays}/${data.summary.expectedDays} days`} />
             <Stat label="Avg / day" value={formatDuration(data.summary.averageDailyFocusMinutes)} />
@@ -235,7 +234,7 @@ export function MonthView() {
               )}
             </CardContent>
           </Card>
-          <Card className="p-4">
+          <Card className="p-5">
             <div className="mb-2 text-sm font-medium">Daily completion</div>
             <Heatmap series={data.series} anchor={anchor} weekStartsOn={ws} />
           </Card>
@@ -248,7 +247,7 @@ export function MonthView() {
 function Heatmap({ series, anchor, weekStartsOn }: { series: ReturnType<typeof dailySeries>; anchor: string; weekStartsOn: number }) {
   return (
     <div>
-      <div className="mb-1 grid grid-cols-7 gap-1 text-center text-[10px] text-muted-foreground">
+      <div className="mb-1 grid grid-cols-7 gap-1 text-center text-[11px] text-muted-foreground">
         {Array.from({ length: 7 }, (_, i) => (
           <span key={i}>{weekdayName((i + weekStartsOn) % 7, "narrow")}</span>
         ))}

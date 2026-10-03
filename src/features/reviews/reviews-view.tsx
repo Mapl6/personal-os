@@ -5,7 +5,6 @@ import * as React from "react";
 import { AreaDot } from "@/components/shared/area";
 import { Field } from "@/components/shared/field";
 import { PageHeader, SectionTitle } from "@/components/shared/page-header";
-import { Stat } from "@/components/shared/stat";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/input";
@@ -198,10 +197,10 @@ function ReviewContext({ type, range, today }: { type: ReviewType; range: DateRa
     <Card>
       <CardHeader><CardTitle>What the data says</CardTitle></CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-2">
-          <Stat label="Planned vs completed" value={`${formatHours(summary.completedMinutes)} / ${formatHours(summary.plannedMinutes)}`} hint={`${summary.completionPercent}%`} />
-          <Stat label="Actual time" value={formatHours(summary.actualMinutes)} hint={summary.estimateMinutes ? `Est. variance ${summary.estimateVarianceMinutes >= 0 ? "+" : ""}${formatDuration(summary.estimateVarianceMinutes)}` : undefined} />
-        </div>
+        <dl className="grid grid-cols-2 divide-x divide-border rounded-lg border border-border">
+          <Metric label="Completed" value={formatHours(summary.completedMinutes)} hint={`of ${formatHours(summary.plannedMinutes)} planned · ${summary.completionPercent}%`} />
+          <Metric label="Actual time" value={formatHours(summary.actualMinutes)} hint={summary.estimateMinutes ? `Est. variance ${summary.estimateVarianceMinutes >= 0 ? "+" : ""}${formatDuration(summary.estimateVarianceMinutes)}` : undefined} />
+        </dl>
 
         {type === "daily" && (
           <div className="space-y-2 text-sm">
@@ -296,6 +295,16 @@ function MonthlyProjects() {
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+function Metric({ label, value, hint }: { label: string; value: string; hint?: string }) {
+  return (
+    <div className="px-4 py-3">
+      <dt className="text-[13px] text-muted-foreground">{label}</dt>
+      <dd className="metric mt-2 text-2xl leading-none font-bold">{value}</dd>
+      {hint && <dd className="mt-2 text-xs text-muted-foreground tabular">{hint}</dd>}
     </div>
   );
 }

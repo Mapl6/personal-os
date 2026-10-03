@@ -371,10 +371,10 @@ function RolloverContent() {
       </DialogHeader>
       <DialogBody className="space-y-3">
         <div className="flex gap-1">
-          <Button size="xs" variant={mode === "past" ? "default" : "secondary"} onClick={() => setMode("past")}>
+          <Button size="xs" variant={mode === "past" ? "secondary" : "outline"} onClick={() => setMode("past")}>
             Earlier days → today
           </Button>
-          <Button size="xs" variant={mode === "today" ? "default" : "secondary"} onClick={() => setMode("today")}>
+          <Button size="xs" variant={mode === "today" ? "secondary" : "outline"} onClick={() => setMode("today")}>
             Today → tomorrow
           </Button>
         </div>

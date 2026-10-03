@@ -80,7 +80,7 @@ function Meta({ block, task }: { block: ScheduleBlock; task: Task }) {
       {task.recurrence && <Repeat aria-label="Recurring" className="size-3 shrink-0 text-muted-foreground" />}
       {block.rescheduleCount > 0 && (
         <span
-          className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground"
+          className="inline-flex items-center gap-0.5 text-[11px] text-muted-foreground"
           title={`Moved ${block.rescheduleCount}× — plans change, that's fine`}
         >
           <Shuffle className="size-2.5" aria-hidden />
@@ -167,7 +167,7 @@ export const BlockCard = React.memo(function BlockCard({
     <div
       className={cn(
         "group relative flex h-full overflow-hidden rounded-md border text-left transition-shadow",
-        "border-border/70 bg-card hover:shadow-md",
+        "border-border bg-card hover:border-input",
         running && "ring-1 ring-primary/60",
         skipped && "border-dashed bg-transparent opacity-60",
         done && "opacity-70",

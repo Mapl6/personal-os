@@ -17,10 +17,10 @@ export function DialogContent({
 }: React.ComponentProps<typeof DialogPrimitive.Content> & { hideClose?: boolean }) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50 backdrop-blur-[2px] data-[state=open]:animate-fade-in" />
+      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/60 data-[state=open]:animate-fade-in" />
       <DialogPrimitive.Content
         className={cn(
-          "fixed left-1/2 top-[max(1rem,8vh)] z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-1.5rem)] max-w-lg -translate-x-1/2 flex-col overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-2xl shadow-black/30 data-[state=open]:animate-scale-in",
+          "fixed left-1/2 top-[max(1rem,8vh)] z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-1.5rem)] max-w-lg -translate-x-1/2 flex-col overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-2xl shadow-black/40 data-[state=open]:animate-scale-in",
           className,
         )}
         {...props}
@@ -48,7 +48,7 @@ export function DialogBody({ className, ...props }: React.HTMLAttributes<HTMLDiv
 export function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("flex flex-col-reverse gap-2 border-t border-border bg-surface px-5 py-3 sm:flex-row sm:justify-end", className)}
+      className={cn("flex flex-col-reverse gap-2 border-t border-border px-5 py-4 sm:flex-row sm:justify-end", className)}
       {...props}
     />
   );

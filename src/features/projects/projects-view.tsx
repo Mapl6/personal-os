@@ -62,7 +62,7 @@ export function ProjectCard({ stats, area, today }: { stats: ProjectStats; area?
   const daysLeft = project.deadline && today ? diffDays(project.deadline, today) : null;
   return (
     <Link href={`/projects/${project.id}`} className="block">
-      <Card className="h-full p-4 transition-colors hover:bg-accent/30">
+      <Card className="h-full p-5 transition-colors hover:bg-accent/30">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">

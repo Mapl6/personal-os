@@ -118,7 +118,7 @@ export function Onboarding() {
                     size="sm"
                     role="radio"
                     aria-checked={calendar === v}
-                    variant={calendar === v ? "default" : "secondary"}
+                    variant={calendar === v ? "secondary" : "outline"}
                     className="flex-1"
                     onClick={() => {
                       setCalendar(v);

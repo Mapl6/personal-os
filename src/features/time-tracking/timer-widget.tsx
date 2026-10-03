@@ -51,23 +51,23 @@ export function TimerWidget({ variant = "sidebar" }: { variant?: "sidebar" | "fl
       aria-label="Timer"
       className={cn(
         "rounded-xl border bg-card",
-        running ? "border-primary/40" : "border-border",
+        running ? "border-success/40" : "border-border",
         variant === "floating" && "flex items-center gap-2 px-3 py-2 shadow-xl shadow-black/30",
         variant === "sidebar" && "p-3",
-        variant === "card" && "p-4",
+        variant === "card" && "p-5",
       )}
     >
       <div className={cn("min-w-0", variant === "floating" && "flex-1")}>
-        <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-          <span className={cn("size-1.5 rounded-full", running ? "animate-pulse bg-primary" : "bg-warning")} aria-hidden />
+        <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+          <span className={cn("size-1.5 rounded-full", running ? "animate-pulse bg-success" : "bg-warning")} aria-hidden />
           {running ? "Focus session" : "Paused"}
         </div>
         <div className="truncate text-sm font-medium">{task?.title ?? "Task"}</div>
-        <div className={cn("font-mono tabular", variant === "card" ? "text-3xl font-semibold" : "text-lg")}>
+        <div className={cn("metric font-bold", variant === "card" ? "mt-2 text-[2rem] leading-none" : "text-lg")}>
           {running ? <Elapsed start={running.start} /> : formatDuration(paused?.durationMinutes ?? 0)}
         </div>
         {variant !== "floating" && (
-          <div className="text-xs text-muted-foreground tabular">
+          <div className="mt-2 text-xs text-muted-foreground tabular">
             Task today {formatDuration(taskTotal)} · All today {formatDuration(todayTotal)}
           </div>
         )}
@@ -92,11 +92,11 @@ export function TimerWidget({ variant = "sidebar" }: { variant?: "sidebar" | "fl
 
 function IdleCard() {
   return (
-    <div className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
-      <div className="mb-1 flex items-center gap-1.5 font-medium text-foreground">
-        <Timer className="size-4" /> No timer running
+    <div className="rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground">
+      <div className="mb-1.5 flex items-center gap-2 font-medium text-foreground">
+        <Timer className="size-4 text-muted-foreground" /> No timer running
       </div>
-      Press ▶ on any block to track time. Tracking is optional — you can also log time manually.
+      Press <Play className="inline size-3 align-[-1px]" aria-label="Start" /> on any block to track time. Tracking is optional — you can also log time manually.
     </div>
   );
 }

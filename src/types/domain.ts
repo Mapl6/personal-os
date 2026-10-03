@@ -268,7 +268,7 @@ export const weekTemplateSchema = z.object({
 export type WeekTemplate = z.infer<typeof weekTemplateSchema>;
 
 // ---------------------------------------------------------------- Settings
-export const ACCENTS = ["indigo", "emerald", "sky", "amber", "rose", "violet"] as const;
+export const ACCENTS = ["cyan", "indigo", "emerald", "sky", "amber", "rose", "violet"] as const;
 export type Accent = (typeof ACCENTS)[number];
 
 export const CALENDAR_SYSTEMS = ["gregorian", "jalali"] as const;
@@ -347,7 +347,9 @@ export const settingsSchema = z.object({
   defaultBreakMinutes: z.number().int().min(0).max(120).default(15),
   dailyTargetMinutes: z.number().int().min(0).max(1440).default(8 * 60),
   theme: z.enum(["dark", "light", "system"]).default("dark"),
-  accent: z.enum(ACCENTS).default("indigo"),
+  accent: z.enum(ACCENTS).default("cyan"),
+  /** Bumped when a design-system change needs a one-time settings migration. */
+  appearanceVersion: z.number().int().min(0).default(0),
   density: z.enum(["comfortable", "compact"]).default("comfortable"),
   calendar: calendarSettingsSchema.default(DEFAULT_CALENDAR),
   customization: customizationSchema.default(customizationSchema.parse({})),

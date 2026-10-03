@@ -23,7 +23,7 @@ export function Tooltip({
           side={side}
           sideOffset={6}
           className={cn(
-            "z-50 rounded-md border border-border bg-popover px-2 py-1 text-xs text-popover-foreground shadow-lg data-[state=delayed-open]:animate-fade-in",
+            "z-50 rounded-md border border-border bg-popover px-2 py-1 text-xs text-popover-foreground shadow-lg shadow-black/30 data-[state=delayed-open]:animate-fade-in",
           )}
         >
           {content}

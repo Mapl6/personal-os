@@ -4,15 +4,15 @@ import * as React from "react";
 import { cn } from "@/lib/utils/cn";
 
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md text-sm font-medium transition-colors active:translate-y-px aria-checked:shadow-[inset_0_0_0_1px_var(--primary)] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
-        secondary: "bg-muted text-foreground hover:bg-accent border border-border",
-        outline: "border border-border bg-transparent hover:bg-accent",
+        default: "bg-primary text-primary-foreground hover:bg-primary/85",
+        secondary: "bg-muted text-foreground hover:bg-muted/70",
+        outline: "border border-input bg-transparent hover:bg-accent",
         ghost: "hover:bg-accent text-muted-foreground hover:text-foreground",
-        destructive: "bg-danger text-white hover:bg-danger/90",
+        destructive: "bg-danger text-white hover:bg-danger/85",
         link: "text-primary underline-offset-4 hover:underline px-0",
       },
       size: {

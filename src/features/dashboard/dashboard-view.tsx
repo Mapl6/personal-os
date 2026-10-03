@@ -1,11 +1,13 @@
 "use client";
 
-import { ArrowRight, CalendarCheck2, Check, Clock, Flame, Gauge, ListChecks, Play, Redo2, SlidersHorizontal } from "lucide-react";
+import { AlertTriangle, ArrowRight, CalendarCheck2, Check, Clock, Flame, Gauge, ListChecks, Play, Redo2, SlidersHorizontal, TimerOff } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { AreaDot, areaColorVar } from "@/components/shared/area";
 import { SectionTitle } from "@/components/shared/page-header";
-import { Ring, Stat } from "@/components/shared/stat";
+import { Stat } from "@/components/shared/stat";
+import { Alert } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -70,13 +72,13 @@ export function DashboardView() {
 
   return (
     <PlannerDnd>
-      <header className="mb-5 flex flex-wrap items-end justify-between gap-3">
+      <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-sm text-muted-foreground">{formatDateKey(today, "EEEE, MMMM d")}</p>
-          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+          <h1 className="text-2xl font-semibold tracking-tight">
             {greeting(now.getHours())}
             {day.settings.name ? `, ${day.settings.name}` : ""}
           </h1>
+          <p className="mt-1 text-sm text-muted-foreground">{formatDateKey(today, "EEEE, MMMM d")}</p>
         </div>
         <div className="flex gap-2">
           <Button asChild variant="ghost" size="sm">
@@ -84,7 +86,7 @@ export function DashboardView() {
               <SlidersHorizontal /> Customize
             </Link>
           </Button>
-          <Button variant="secondary" size="sm" onClick={() => ui.openRollover()}>
+          <Button variant="outline" size="sm" onClick={() => ui.openRollover()}>
             <Redo2 /> Carry over
           </Button>
           <Button size="sm" asChild>
@@ -100,29 +102,27 @@ export function DashboardView() {
           progress: {
             side: false,
             node: (
-              <Card>
-                <div className="flex items-center gap-4 p-4">
-                  <Ring value={p.completionPercent} size={76} label={`Day progress ${p.completionPercent}%`} />
-                  <dl className="grid flex-1 grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-4">
-                    <Metric label="Planned" value={formatDuration(p.plannedMinutes)} />
-                    <Metric label="Completed" value={formatDuration(p.completedMinutes)} />
-                    <Metric label="Remaining" value={formatDuration(p.remainingMinutes)} />
-                    <Metric label="Tracked" value={formatDuration(p.trackedMinutes)} />
-                  </dl>
-                  <div className="hidden text-right text-sm text-muted-foreground sm:block">
-                    <div className="text-2xl font-semibold text-foreground tabular">
-                      {p.blocksCompleted}/{p.blocksTotal}
-                    </div>
-                    blocks done
-                  </div>
-                </div>
-              </Card>
+              <section aria-label="Today’s progress" className="grid grid-cols-3 gap-2 sm:gap-4 [&>*]:max-sm:p-3">
+                <Stat
+                  label="Day progress"
+                  value={`${p.completionPercent}%`}
+                  tone="primary"
+                  hint={
+                    <>
+                      <Progress value={p.completionPercent} className="mb-2 h-1" label={`Day progress ${p.completionPercent}%`} />
+                      {p.blocksCompleted} of {p.blocksTotal} blocks done
+                    </>
+                  }
+                />
+                <Stat label="Completed" value={formatDuration(p.completedMinutes)} hint={`of ${formatDuration(p.plannedMinutes)} planned · ${formatDuration(p.remainingMinutes)} left`} />
+                <Stat label="Tracked" value={formatDuration(p.trackedMinutes)} hint={day.runningBlockId ? "Timer running" : "Timer and manual logs"} />
+              </section>
             ),
           },
           schedule: {
             side: false,
             node: (
-              <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
+              <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_300px]">
                 <Card className="min-w-0">
                   <CardHeader>
                     <CardTitle>Today’s schedule</CardTitle>
@@ -204,7 +204,7 @@ export function DashboardView() {
               <div>
                 <SectionTitle>Next up</SectionTitle>
                 {next && nextTask ? (
-                  <Card className="p-4">
+                  <Card className="p-5">
                     <div className="flex items-center gap-2 text-xs text-muted-foreground tabular">
                       <Clock className="size-3.5" />
                       {formatTime(next.startMinutes!)} · {formatDuration(next.durationMinutes)}
@@ -221,7 +221,7 @@ export function DashboardView() {
                     )}
                   </Card>
                 ) : (
-                  <Card className="p-4 text-sm text-muted-foreground">Nothing else timed today. Rest counts too.</Card>
+                  <Card className="p-5 text-sm text-muted-foreground">Nothing else timed today. Rest counts too.</Card>
                 )}
               </div>
             ),
@@ -249,16 +249,17 @@ export function DashboardView() {
         const main = visible.filter((w) => !widgets[w.id]!.side);
         const side = visible.filter((w) => widgets[w.id]!.side);
         return (
-          <div className={cn("grid gap-4", side.length > 0 && main.length > 0 && "lg:grid-cols-[minmax(0,1fr)_320px]")}>
+          <div className={cn("grid gap-6", side.length > 0 && main.length > 0 && "lg:grid-cols-12")}>
             {main.length > 0 && (
-              <div className="min-w-0 space-y-4">
+              <div className="min-w-0 space-y-6 lg:col-span-8">
                 {main.map((w) => (
                   <React.Fragment key={w.id}>{widgets[w.id]!.node}</React.Fragment>
                 ))}
               </div>
             )}
             {side.length > 0 && (
-              <aside className="space-y-4" aria-label="Focus">
+              <aside className="space-y-6 lg:col-span-4" aria-label="Focus">
+                <Attention today={today} />
                 {side.map((w) => (
                   <React.Fragment key={w.id}>{widgets[w.id]!.node}</React.Fragment>
                 ))}
@@ -276,15 +277,6 @@ export function DashboardView() {
   );
 }
 
-function Metric({ label, value, className }: { label: string; value: string; className?: string }) {
-  return (
-    <div className={className}>
-      <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="text-lg font-semibold tabular">{value}</dd>
-    </div>
-  );
-}
-
 function DailyAreaBreakdown({ today }: { today: string }) {
   const range = { from: today, to: today };
   const blocks = useBlocks(range);
@@ -296,9 +288,9 @@ function DailyAreaBreakdown({ today }: { today: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [today, day.lookups.tasks, day.lookups.areas, all.data, entries.data, blocks.data],
   );
-  if (rows.length === 0) return <Card className="p-4 text-sm text-muted-foreground">No time planned yet today.</Card>;
+  if (rows.length === 0) return <Card className="p-5 text-sm text-muted-foreground">No time planned yet today.</Card>;
   return (
-    <Card className="space-y-2.5 p-4">
+    <Card className="space-y-4 p-5">
       {rows.map((r) => (
         <div key={r.areaId ?? "none"} className="text-sm">
           <div className="mb-1 flex items-center justify-between gap-2">
@@ -309,7 +301,7 @@ function DailyAreaBreakdown({ today }: { today: string }) {
               {formatDuration(r.minutes)} / {formatDuration(r.plannedMinutes)}
             </span>
           </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+          <div className="h-1 overflow-hidden rounded-full bg-muted">
             <div
               className="h-full rounded-full"
               style={{ width: `${r.plannedMinutes ? Math.min(100, (r.minutes / r.plannedMinutes) * 100) : 100}%`, background: areaColorVar(r.color) }}
@@ -362,8 +354,8 @@ function QuickStats({ today, weekStartsOn, workingDays }: { today: string; weekS
       >
         This week
       </SectionTitle>
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-        <Stat icon={<CalendarCheck2 />} label="Completed / planned" value={`${formatHours(s.completedMinutes)} / ${formatHours(s.plannedMinutes)}`} hint={`${s.completionPercent}% of plan`} />
+      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+        <Stat icon={<CalendarCheck2 />} label="Completed" value={formatHours(s.completedMinutes)} hint={`of ${formatHours(s.plannedMinutes)} planned · ${s.completionPercent}%`} />
         <Stat icon={<Gauge />} label="Avg daily focus" value={formatDuration(s.averageDailyFocusMinutes)} hint={`${formatHours(s.actualMinutes)} total`} />
         <Stat icon={<ListChecks />} label="Consistency" value={`${s.consistencyPercent}%`} hint={`${s.activeDays} of ${s.expectedDays} working days`} />
         <Stat icon={<Flame />} label="Active streak" value={`${streak} day${streak === 1 ? "" : "s"}`} hint={s.rescheduledBlocks ? `${s.rescheduledBlocks} blocks moved — flexible` : "Steady"} />
@@ -380,14 +372,14 @@ function TodayHabits({ today }: { today: string }) {
   const done = new Set((entries.data ?? []).map((e) => e.habitId));
   if (due.length === 0) {
     return (
-      <Card className="p-4 text-sm text-muted-foreground">
+      <Card className="p-5 text-sm text-muted-foreground">
         No habits scheduled today. <Link className="text-primary underline" href="/habits">Manage habits</Link>
       </Card>
     );
   }
   return (
     <Card className="p-2">
-      <ul>
+      <ul className="divide-y divide-border">
         {due.map((h) => {
           const isDone = done.has(h.id);
           return (
@@ -396,7 +388,7 @@ function TodayHabits({ today }: { today: string }) {
                 type="button"
                 onClick={() => toggle.mutate(h.id)}
                 aria-pressed={isDone}
-                className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-sm hover:bg-accent"
+                className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm hover:bg-accent"
               >
                 <span
                   className={cn("flex size-5 items-center justify-center rounded-md border", isDone ? "border-transparent" : "border-border")}
@@ -412,5 +404,46 @@ function TodayHabits({ today }: { today: string }) {
         })}
       </ul>
     </Card>
+  );
+}
+
+/** Alerts panel (DESIGN.md §5): only renders when something needs a decision. */
+function Attention({ today }: { today: string }) {
+  const day = useDay(today);
+  const slipped = day.blocks.filter((b) => b.status === "planned" && b.startMinutes !== null && b.startMinutes + b.durationMinutes <= day.nowMinutes);
+  const overdue = day.lookups.tasks.filter((t) => t.dueDate !== null && t.dueDate < today && !["completed", "skipped", "cancelled"].includes(t.status));
+  if (slipped.length === 0 && overdue.length === 0) return null;
+  return (
+    <section aria-label="Needs attention" className="space-y-2">
+      <SectionTitle>Needs attention</SectionTitle>
+      {overdue.length > 0 && (
+        <Alert>
+          <AlertTriangle />
+          <div className="min-w-0 flex-1">
+            <p className="font-medium">
+              {overdue.length} overdue task{overdue.length === 1 ? "" : "s"}
+            </p>
+            <p className="mt-0.5 truncate text-[13px] text-foreground/70">{overdue.slice(0, 3).map((t) => t.title).join(" · ")}</p>
+          </div>
+          <Link href="/tasks" className="shrink-0 text-[13px] font-medium underline-offset-4 hover:underline">
+            Review
+          </Link>
+        </Alert>
+      )}
+      {slipped.length > 0 && (
+        <Alert variant="warning">
+          <TimerOff />
+          <div className="min-w-0 flex-1">
+            <p className="font-medium">
+              {slipped.length} block{slipped.length === 1 ? "" : "s"} slipped today
+            </p>
+            <p className="mt-0.5 text-[13px] text-foreground/70">Their time passed without a check-off. Reschedule or mark them done.</p>
+          </div>
+          <Link href="/today" className="shrink-0 text-[13px] font-medium underline-offset-4 hover:underline">
+            Fix
+          </Link>
+        </Alert>
+      )}
+    </section>
   );
 }

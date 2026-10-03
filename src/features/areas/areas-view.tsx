@@ -35,7 +35,7 @@ export function AreasView() {
             const s = stats.get(a.id)!;
             return (
               <Link key={a.id} href={`/areas/${a.id}`}>
-                <Card className="relative h-full overflow-hidden p-4 transition-colors hover:bg-accent/30">
+                <Card className="relative h-full overflow-hidden p-5 transition-colors hover:bg-accent/30">
                   <span aria-hidden className="absolute inset-y-0 left-0 w-1" style={{ background: areaColorVar(a.color) }} />
                   <h2 className="font-semibold">{a.name}</h2>
                   {a.description && <p className="mt-0.5 line-clamp-1 text-sm text-muted-foreground">{a.description}</p>}

@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Download, Upload } from "lucide-react";
+import { Bell, Check, Download, Upload } from "lucide-react";
 import { useTheme } from "next-themes";
 import * as React from "react";
 import { toast } from "sonner";
@@ -93,8 +93,8 @@ function SettingsForm({ initial }: { initial: Settings }) {
         title="Settings"
         description="Everything is stored locally on this device."
         actions={
-          <Button size="sm" disabled={!dirty || save.isPending} onClick={() => save.mutate(s)} className="sticky top-2 z-10">
-            {save.isPending ? "Saving…" : dirty ? "Save changes" : "Saved"}
+          <Button size="sm" variant={dirty ? "default" : "ghost"} disabled={!dirty || save.isPending} onClick={() => save.mutate(s)} className="sticky top-2 z-10 disabled:opacity-100">
+            {save.isPending ? "Saving…" : dirty ? "Save changes" : <><Check /> Saved</>}
           </Button>
         }
       />
@@ -137,7 +137,7 @@ function SettingsForm({ initial }: { initial: Settings }) {
           <Row label="Calendar">
             <div className="flex gap-1" role="radiogroup" aria-label="Calendar">
               {([["gregorian", "Gregorian"], ["jalali", "Shamsi · شمسی"]] as const).map(([v, l]) => (
-                <Button key={v} size="sm" role="radio" aria-checked={s.calendar.system === v} variant={s.calendar.system === v ? "default" : "secondary"} className="flex-1" onClick={() => setImmediate({ calendar: { ...s.calendar, system: v } })}>{l}</Button>
+                <Button key={v} size="sm" role="radio" aria-checked={s.calendar.system === v} variant={s.calendar.system === v ? "secondary" : "outline"} className="flex-1" onClick={() => setImmediate({ calendar: { ...s.calendar, system: v } })}>{l}</Button>
               ))}
             </div>
           </Row>
@@ -219,7 +219,7 @@ function SettingsForm({ initial }: { initial: Settings }) {
           <Row label="Theme">
             <div className="flex gap-1" role="radiogroup" aria-label="Theme">
               {(["dark", "light", "system"] as const).map((t) => (
-                <Button key={t} size="sm" role="radio" aria-checked={s.theme === t} variant={s.theme === t ? "default" : "secondary"} className="flex-1 capitalize" onClick={() => setAppearance({ theme: t })}>{t}</Button>
+                <Button key={t} size="sm" role="radio" aria-checked={s.theme === t} variant={s.theme === t ? "secondary" : "outline"} className="flex-1 capitalize" onClick={() => setAppearance({ theme: t })}>{t}</Button>
               ))}
             </div>
           </Row>
@@ -233,7 +233,7 @@ function SettingsForm({ initial }: { initial: Settings }) {
           <Row label="Density">
             <div className="flex gap-1" role="radiogroup" aria-label="Density">
               {(["comfortable", "compact"] as const).map((d) => (
-                <Button key={d} size="sm" role="radio" aria-checked={s.density === d} variant={s.density === d ? "default" : "secondary"} className="flex-1 capitalize" onClick={() => setAppearance({ density: d })}>{d}</Button>
+                <Button key={d} size="sm" role="radio" aria-checked={s.density === d} variant={s.density === d ? "secondary" : "outline"} className="flex-1 capitalize" onClick={() => setAppearance({ density: d })}>{d}</Button>
               ))}
             </div>
           </Row>

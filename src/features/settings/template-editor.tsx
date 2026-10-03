@@ -55,7 +55,7 @@ function TemplateCard({ template }: { template: WeekTemplate }) {
           return (
             <div key={day}>
               <div className="mb-1 flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{weekdayName(day)}</span>
+                <span className="text-[13px] font-semibold text-muted-foreground">{weekdayName(day)}</span>
                 <Button
                   size="xs"
                   variant="ghost"

@@ -131,12 +131,12 @@ function StageStepper({ stage, onChange, counts }: { stage: number; onChange: (s
             }}
             className={cn(
               "grid min-w-0 gap-0.5 border-border px-3 py-2.5 text-start transition-colors [&:not(:first-child)]:border-s max-md:[&:nth-child(4)]:border-s-0 max-md:[&:nth-child(n+4)]:border-t",
-              active ? "bg-primary text-primary-foreground" : i < stage ? "bg-primary/10 hover:bg-primary/15" : "hover:bg-accent",
+              active ? "bg-muted shadow-[inset_0_-2px_0_var(--primary)]" : "hover:bg-accent",
             )}
           >
-            <span className={cn("text-[11px] font-medium uppercase tracking-wider", active ? "opacity-80" : "text-muted-foreground")}>{s.label}</span>
             <span className="text-sm font-semibold leading-tight">{s.title}</span>
-            <span className={cn("truncate text-xs tabular", active ? "opacity-80" : "text-muted-foreground")}>
+            <span className="text-xs text-muted-foreground">{s.label}</span>
+            <span className="truncate text-xs text-muted-foreground tabular">
               {counts[i]} features
             </span>
           </button>
@@ -158,7 +158,7 @@ function Summary({ features, stage, includeP2 }: { features: RoadmapFeature[]; s
   return (
     <section aria-live="polite" className="grid items-end gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
       <div>
-        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           {stage === 0 ? "Features built today" : `Features built at ${stageName(stage)}`}
         </p>
         <p className="mt-1 text-5xl font-semibold tracking-tight tabular">
@@ -168,9 +168,9 @@ function Summary({ features, stage, includeP2 }: { features: RoadmapFeature[]; s
       </div>
       <div className="space-y-3">
         <div className="flex h-3 overflow-hidden rounded-full bg-muted" aria-hidden>
-          <span className="bg-foreground transition-[width] duration-300" style={{ width: pct(s.builtToday, s.total) }} />
-          <span className="bg-[repeating-linear-gradient(135deg,var(--muted-foreground)_0_3px,transparent_3px_6px)] transition-[width] duration-300" style={{ width: pct(partlyLeft, s.total) }} />
-          <span className="bg-primary transition-[width] duration-300" style={{ width: pct(added, s.total) }} />
+          <span className="bg-foreground" style={{ width: pct(s.builtToday, s.total) }} />
+          <span className="bg-[repeating-linear-gradient(135deg,var(--muted-foreground)_0_3px,transparent_3px_6px)]" style={{ width: pct(partlyLeft, s.total) }} />
+          <span className="bg-primary" style={{ width: pct(added, s.total) }} />
         </div>
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
           <LegendSwatch className="bg-foreground" label="Built today" />
@@ -216,22 +216,22 @@ function SectionsFrame({ title, stage, markNew }: { title: string; stage: number
   const sections = APP_SECTIONS.filter((s) => s.phase <= stage);
   return (
     <Card className="overflow-hidden">
-      <div className="flex items-center justify-between gap-2 border-b border-border bg-surface px-4 py-2.5">
+      <div className="flex items-center justify-between gap-2 border-b border-border px-5 py-3">
         <span className="text-sm font-semibold">{title}</span>
         <span className="text-xs text-muted-foreground tabular">{sections.length} sections</span>
       </div>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-x-4 gap-y-3 p-4">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-x-4 gap-y-4 p-5">
         {SECTION_GROUPS.map((group) => {
           const items = sections.filter((s) => s.group === group);
           return (
             <div key={group} className="space-y-0.5">
-              <h3 className="mb-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{group}</h3>
+              <h3 className="mb-1 text-xs font-medium text-muted-foreground">{group}</h3>
               {items.length === 0 && <p className="px-1.5 text-sm italic text-muted-foreground">Not yet</p>}
               {items.map((s) => (
                 <div key={s.label} className={cn("flex items-center gap-2 rounded-md px-1.5 py-0.5 text-sm", markNew && s.phase > 0 && "bg-primary/10")}>
                   <span className="size-2 shrink-0 rounded-sm" style={{ background: DOMAIN_COLOR[s.domain] }} />
                   <span className="min-w-0 truncate">{s.label}</span>
-                  {markNew && s.phase > 0 && <span className="ms-auto text-[10px] font-medium text-primary">new</span>}
+                  {markNew && s.phase > 0 && <span className="ms-auto text-[11px] font-medium text-primary">new</span>}
                 </div>
               ))}
             </div>
@@ -298,7 +298,7 @@ function Modules({ features, built }: { features: RoadmapFeature[]; built: (f: R
                 <span className="text-[11px] text-muted-foreground">Phase {Math.min(...fs.map((f) => f.phase))}</span>
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                <div className="h-full bg-[var(--area-emerald)] transition-[width] duration-300" style={{ width: pct(done, fs.length) }} />
+                <div className="h-full bg-[var(--area-emerald)]" style={{ width: pct(done, fs.length) }} />
               </div>
               <div className="text-xs text-muted-foreground tabular">
                 {done} of {fs.length} features
@@ -388,11 +388,10 @@ function FeatureBoard({
           return (
             <Card key={s.label} className="min-w-0">
               <div className="flex items-baseline justify-between gap-2 border-b border-border px-4 py-3">
-                <div className="min-w-0">
-                  <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{phase === 0 ? "Shipped" : s.label}</div>
-                  <h3 className={cn("text-sm font-semibold", phase > stage && "text-muted-foreground")}>{s.title}</h3>
-                </div>
-                <span className="text-xs text-muted-foreground tabular">{fs.length}</span>
+                <h3 className={cn("min-w-0 text-sm font-semibold", phase > stage && "text-muted-foreground")}>{s.title}</h3>
+                <span className="shrink-0 text-xs text-muted-foreground tabular">
+                  {phase === 0 ? "Shipped" : s.label} · {fs.length}
+                </span>
               </div>
               <div className="space-y-3 p-2.5">
                 {fs.length === 0 && <p className="px-1.5 py-2 text-sm text-muted-foreground">No features match the filters.</p>}
@@ -401,7 +400,7 @@ function FeatureBoard({
                   if (!items.length) return null;
                   return (
                     <div key={d}>
-                      <div className="flex items-center gap-1.5 px-1.5 pb-1 text-[11px] font-medium uppercase tracking-wider" style={{ color: DOMAIN_COLOR[d] }}>
+                      <div className="flex items-center gap-1.5 px-1.5 pb-1 text-xs font-medium text-muted-foreground">
                         <span className="size-2 rounded-sm" style={{ background: DOMAIN_COLOR[d] }} />
                         {d} · {items.length}
                       </div>
@@ -415,7 +414,7 @@ function FeatureBoard({
                             !built(f) && "opacity-35",
                           )}
                         >
-                          <span className="font-mono text-[10.5px] text-muted-foreground">{f.id}</span>
+                          <span className="font-mono text-[11px] text-muted-foreground">{f.id}</span>
                           <span>{f.name}</span>
                           <StatusMark feature={f} />
                         </button>
@@ -435,7 +434,7 @@ function FeatureBoard({
 function StatusMark({ feature }: { feature: RoadmapFeature }) {
   if (feature.status === "shipped") return <Check className="size-3.5 self-center text-success" aria-label="Built today" />;
   if (feature.status === "partial") return <CircleDashed className="size-3.5 self-center text-muted-foreground" aria-label="Partly built today" />;
-  if (feature.priority === "P2") return <span className="font-mono text-[10px] text-muted-foreground">P2</span>;
+  if (feature.priority === "P2") return <span className="font-mono text-[11px] text-muted-foreground">P2</span>;
   return <span />;
 }
 

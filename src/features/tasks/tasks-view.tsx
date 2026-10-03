@@ -186,7 +186,7 @@ const TaskRow = React.memo(function TaskRow({
   const done = task.status === "completed";
   const subDone = task.subtasks.filter((s) => s.done).length;
   return (
-    <li className="group flex items-center gap-3 px-3 py-2.5 hover:bg-accent/30">
+    <li className="group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-accent">
       {task.recurrence ? (
         <Repeat className="size-4 shrink-0 text-muted-foreground" aria-label="Recurring" />
       ) : (

@@ -81,7 +81,12 @@ export function createDataService(ctx: ServiceContext) {
   }
 
   async function getSettings(): Promise<Settings> {
-    return store.settings.get();
+    const settings = await store.settings.get();
+    // v1 (WattVision design): indigo was the old default accent, move it to cyan once.
+    if (settings.appearanceVersion < 1) {
+      return store.settings.save({ ...settings, accent: settings.accent === "indigo" ? "cyan" : settings.accent, appearanceVersion: 1 });
+    }
+    return settings;
   }
 
   async function saveSettings(patch: Partial<Settings>): Promise<Settings> {

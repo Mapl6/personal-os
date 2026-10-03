@@ -12,7 +12,7 @@ export function DaySummaryStrip({ progress }: { progress: DayProgress }) {
       <div className="rounded-xl border border-border bg-card px-4 py-3 sm:hidden">
         <div className="flex items-baseline justify-between text-sm tabular">
           <span>
-            <span className="font-semibold">{formatDuration(progress.completedMinutes)}</span>
+            <span className="metric font-bold">{formatDuration(progress.completedMinutes)}</span>
             <span className="text-muted-foreground"> of {formatDuration(progress.plannedMinutes)}</span>
           </span>
           <span className="text-xs text-muted-foreground">
@@ -21,7 +21,7 @@ export function DaySummaryStrip({ progress }: { progress: DayProgress }) {
         </div>
         <Progress value={progress.completionPercent} className="mt-2" label="Day progress" />
       </div>
-      <div className="hidden grid-cols-4 gap-2 sm:grid">
+      <div className="hidden grid-cols-4 gap-4 sm:grid">
         <Stat label="Planned" value={formatDuration(progress.plannedMinutes)} hint={`${progress.blocksTotal} blocks`} />
         <Stat
           label="Completed"
@@ -29,11 +29,12 @@ export function DaySummaryStrip({ progress }: { progress: DayProgress }) {
           hint={`${progress.blocksCompleted} done${progress.blocksSkipped ? ` · ${progress.blocksSkipped} skipped` : ""}`}
         />
         <Stat label="Remaining" value={formatDuration(progress.remainingMinutes)} hint={`Tracked ${formatDuration(progress.trackedMinutes)}`} />
-        <div className="rounded-xl border border-border bg-card px-4 py-3">
-          <div className="text-xs text-muted-foreground">Progress</div>
-          <div className="mt-1 text-xl font-semibold tabular">{progress.completionPercent}%</div>
-          <Progress value={progress.completionPercent} className="mt-2" label="Day progress" />
-        </div>
+        <Stat
+          label="Progress"
+          value={`${progress.completionPercent}%`}
+          tone="primary"
+          hint={<Progress value={progress.completionPercent} className="mt-1 h-1" label="Day progress" />}
+        />
       </div>
     </>
   );

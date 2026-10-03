@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsLeft, ChevronsRight, Command, Plus } from "lucide-react";
+import { ChevronsLeft, ChevronsRight, Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
@@ -12,7 +12,7 @@ import { TimerWidget } from "@/features/time-tracking/timer-widget";
 import { cn } from "@/lib/utils/cn";
 import { ui } from "@/store/ui-store";
 import { useSettings } from "@/hooks/queries";
-import { isActive, orderNavItems } from "./nav-items";
+import { orderNavSpaces, spaceOf } from "./nav-items";
 import { ThemeToggle } from "./theme-toggle";
 
 const COLLAPSE_KEY = "pos-sidebar-collapsed";
@@ -21,7 +21,7 @@ function Brand({ collapsed }: { collapsed: boolean }) {
   return (
     <div className={cn("flex items-center gap-2 px-2", collapsed && "justify-center px-0")}>
       <Logo />
-      {!collapsed && <span className="text-sm font-semibold tracking-tight">Personal OS</span>}
+      {!collapsed && <span className="text-[15px] font-semibold tracking-tight">Personal OS</span>}
     </div>
   );
 }
@@ -33,7 +33,10 @@ function Brand({ collapsed }: { collapsed: boolean }) {
 export function Sidebar() {
   const pathname = usePathname();
   const { settings } = useSettings();
-  const navItems = orderNavItems(settings.customization.navOrder, settings.customization.hiddenNav);
+  const spaces = orderNavSpaces(settings.customization.navOrder, settings.customization.hiddenNav);
+  const current = spaceOf(pathname)?.href;
+  const navItems = spaces.filter((s) => s.href !== "/settings");
+  const settingsItem = spaces.find((s) => s.href === "/settings");
   const [collapsedPref, setCollapsedPref] = React.useState<boolean | null>(null);
 
   React.useEffect(() => {
@@ -61,13 +64,13 @@ export function Sidebar() {
     <aside
       aria-label="Main navigation"
       className={cn(
-        "sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-border bg-surface py-3 md:flex",
+        "sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-border bg-surface py-4 md:flex",
         collapsed ? "w-16" : "w-16 lg:w-60",
         collapsedPref === false && "md:w-60",
       )}
       data-collapsed={collapsed}
     >
-      <div className="mb-3 flex items-center justify-between px-3">
+      <div className="mb-5 flex items-center justify-between px-3">
         <span className={cn(collapsed ? "" : "lg:hidden", collapsedPref === false && "md:hidden")}>
           <Brand collapsed />
         </span>
@@ -78,20 +81,23 @@ export function Sidebar() {
 
       <div className="space-y-1 px-2">
         <SidebarButton collapsed={collapsed} expanded={collapsedPref === false} label="New task" onClick={() => ui.newTask()} icon={<Plus />} hint={<Kbd>N</Kbd>} primary />
-        <SidebarButton collapsed={collapsed} expanded={collapsedPref === false} label="Command" onClick={() => ui.openCommand()} icon={<Command />} hint={<Kbd>⌘K</Kbd>} />
+        <SidebarButton collapsed={collapsed} expanded={collapsedPref === false} label="Search" onClick={() => ui.openCommand()} icon={<Search />} hint={<Kbd>⌘K</Kbd>} />
       </div>
 
-      <nav className="mt-3 flex-1 space-y-0.5 overflow-y-auto px-2 scrollbar-thin">
-        {navItems.map((item) => {
-          const active = isActive(pathname, item.href);
+      <nav className="mt-5 flex-1 space-y-0.5 overflow-y-auto px-2 scrollbar-thin">
+        {[...navItems, ...(settingsItem ? [settingsItem] : [])].map((item) => {
+          const active = current === item.href;
           const link = (
             <Link
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex h-9 items-center gap-2.5 rounded-md px-2.5 text-sm transition-colors",
-                active ? "bg-accent font-medium text-foreground" : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+                "relative flex h-9 items-center gap-3 rounded-md px-2.5 text-sm transition-colors",
+                active
+                  ? "bg-accent font-medium text-foreground before:absolute before:inset-y-2 before:-left-2 before:w-0.5 before:rounded-full before:bg-primary"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                item.href === "/settings" && "mt-4",
                 collapsed ? "justify-center px-0" : "justify-center px-0 lg:justify-start lg:px-2.5",
                 collapsedPref === false && "md:justify-start md:px-2.5",
               )}
@@ -113,7 +119,7 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className={cn("hidden px-2 pb-2", !collapsed && "lg:block", collapsedPref === false && "md:block")}>
+      <div className={cn("hidden px-2 pb-3", !collapsed && "lg:block", collapsedPref === false && "md:block")}>
         <TimerWidget variant="sidebar" />
       </div>
       <div className={cn("flex gap-1 px-2", collapsed ? "flex-col" : "flex-col lg:flex-row", collapsedPref === false && "md:flex-row")}>
@@ -154,15 +160,15 @@ function SidebarButton({
 }) {
   return (
     <Button
-      variant={primary ? "default" : "secondary"}
+      variant={primary ? "default" : "outline"}
       size="sm"
       onClick={onClick}
       aria-label={label}
-      className={cn("w-full", collapsed ? "px-0" : "px-0 lg:justify-start lg:px-2.5", expanded && "md:justify-start md:px-2.5")}
+      className={cn("w-full", !primary && "font-normal text-muted-foreground hover:text-foreground", collapsed ? "px-0" : "px-0 lg:justify-start lg:px-2.5", expanded && "md:justify-start md:px-2.5")}
     >
       {icon}
       <span className={cn("hidden", !collapsed && "lg:inline", expanded && "md:inline")}>{label}</span>
-      <span className={cn("ml-auto hidden opacity-70", !collapsed && "lg:inline-flex", expanded && "md:inline-flex")}>{hint}</span>
+      <span className={cn("ml-auto hidden", primary && "[&_kbd]:border-transparent [&_kbd]:bg-black/15 [&_kbd]:text-primary-foreground", !collapsed && "lg:inline-flex", expanded && "md:inline-flex")}>{hint}</span>
     </Button>
   );
 }

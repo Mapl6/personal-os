@@ -91,7 +91,7 @@ function DayColumn({
     >
       <header className="mb-2 px-1">
         <div className="flex items-center justify-between">
-          <h3 className={cn("text-xs font-semibold uppercase tracking-wider", isToday ? "text-primary" : "text-muted-foreground")}>
+          <h3 className={cn("text-[13px] font-semibold", isToday ? "text-primary" : "text-muted-foreground")}>
             {formatDateKey(date, "EEEE")}
           </h3>
           <span className="text-xs text-muted-foreground tabular">{formatDateKey(date, "MMM d")}</span>
