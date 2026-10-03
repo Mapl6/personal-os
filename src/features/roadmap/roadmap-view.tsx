@@ -40,9 +40,43 @@ type PriorityFilter = "all" | "p0" | "p01";
 
 const pct = (n: number, total: number) => `${total ? (100 * n) / total : 0}%`;
 const stageName = (stage: number) => (stage === 0 ? "today" : stage === FINAL_STAGE ? "complete" : `end of Phase ${stage}`);
+const STAGE_HASHES = ["today", "phase-1", "phase-2", "phase-3", "phase-4", "phase-5"];
+
+function stageFromHash(): number | null {
+  const index = STAGE_HASHES.indexOf(window.location.hash.replace(/^#/, ""));
+  return index >= 0 ? index : null;
+}
 
 export function RoadmapView({ features }: { features: RoadmapFeature[] }) {
   const [stage, setStage] = React.useState(FINAL_STAGE);
+
+  // Read the deep-link hash after hydration. Reading it during the first
+  // render would make the client markup differ from the pre-rendered
+  // server markup (hydration error on /roadmap#phase-2).
+  React.useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect -- one-time post-hydration hash read; window is unavailable during SSR */
+    const fromHash = stageFromHash();
+    if (fromHash !== null) {
+      setStage(fromHash);
+    }
+    /* eslint-enable react-hooks/set-state-in-effect */
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional one-time read on mount
+  }, []);
+
+  // Reflect the picked stage in the URL hash without adding history
+  // entries. Skipped on mount so a plain /roadmap keeps its clean URL.
+  const isFirstRender = React.useRef(true);
+  React.useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    const hash = `#${STAGE_HASHES[stage]}`;
+    if (window.location.hash !== hash) {
+      window.history.replaceState(null, "", hash);
+    }
+  }, [stage]);
+
   const [includeP2, setIncludeP2] = React.useState(true);
   const [selected, setSelected] = React.useState<RoadmapFeature | null>(null);
   const built = React.useCallback((f: RoadmapFeature) => isBuiltAt(f, stage, includeP2), [stage, includeP2]);
