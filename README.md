@@ -1,8 +1,6 @@
 <div align="center">
 
-<img src="src/app/icon.svg" alt="Personal OS logo: a day dial of four time blocks around a dot, with one block pulled out of the ring" width="88" />
-
-# Personal OS
+<img src="docs/screenshots/banner.png" alt="Personal OS: plan, do and review your days, weeks and months. Local-first, no account. Shown next to the dashboard with today's progress and schedule." width="100%" />
 
 **A calm, local-first operating system for planning, doing and reviewing your days, weeks and months.**
 
@@ -22,7 +20,7 @@ Plan → Execute → Track → Review → Adjust. Plans are hypotheses: moving a
 
 [Features](#-features) · [Screenshots](#-screenshots) · [Quick start](#-quick-start) · [Shamsi calendar](#-shamsi--persian-calendar) · [Architecture](#-architecture) · [Roadmap](#-roadmap)
 
-<img src="docs/screenshots/demo.gif" alt="A short tour of Personal OS: the dashboard, adding 'Gym Thursday 18:00' with Quick Add, the week calendar, the week board, analytics and the public roadmap" width="100%" />
+<img src="docs/screenshots/demo.gif" alt="A short tour of Personal OS: the home dashboard, adding 'Gym Thursday 18:00' with Quick Add, the Plan space (calendar and week plan), the Life space (goals and habits), Insights analytics and the public roadmap" width="100%" />
 
 </div>
 
@@ -53,14 +51,15 @@ It optimises for **consistency, clarity, flexibility, realistic planning and lon
 | 📈 **Analytics** | Planned vs completed, focused hours, "Where did my time go?", weekly trend, consistency, estimate-vs-actual variance and frequently moved tasks. |
 | 📝 **Reviews & habits** | Daily, weekly and monthly reviews (with the data shown next to your answers, and editable questions) plus a simple habit tracker with streaks. |
 | ⌘ **Command Center** | `⌘/Ctrl + K`: search, navigate, start timers, reschedule, and **Quick Add** in plain language, e.g. `React 2h tomorrow`, `Gym Thursday 18:00`, `Startup 3h Saturday #mvp !high`, `Weekly Review every sunday 18:00`. |
-| 🌙 **Light & dark** | Dark by default, with a one-click light/dark toggle, six accent colours and two density levels. |
-| 🧩 **Customisable** | Dashboard widgets, sidebar items, task defaults, priority names, timeline zoom, review questions, area and habit order, and a tag manager (rename, merge or delete tags). |
+| 🌙 **Light & dark** | Dark by default, with a one-click light/dark toggle, seven accent colours (cyan by default) and two density levels. |
+| 🧭 **Spaces, not page sprawl** | Six spaces in the sidebar (Home, Today, Plan, Tasks, Life, Insights). Related pages live as tabs inside a space (Plan holds Calendar, Week plan and Month plan; Life holds Goals, Projects, Areas and Habits), while every page keeps its own URL and `g` shortcut. |
+| 🧩 **Customisable** | Dashboard widgets, sidebar spaces, task defaults, priority names, timeline zoom, review questions, area and habit order, and a tag manager (rename, merge or delete tags). |
 | 📱 **Responsive** | Sidebar on desktop, collapsible rail on tablet, bottom navigation on phones. |
 | ♿ **Accessible** | Keyboard drag & drop, focus states, screen-reader labels and support for reduced motion. |
 
 ## 📸 Screenshots
 
-<p align="center"><img src="docs/screenshots/dashboard-dark.png" alt="Personal OS dashboard in dark mode: today's progress ring, a drag-and-drop timeline, unscheduled tasks, weekly goals and a focus timer" width="100%" /><br/><sub><b>Dashboard</b>: progress, timeline, unscheduled tasks and weekly goals</sub></p>
+<p align="center"><img src="docs/screenshots/dashboard-dark.png" alt="Personal OS home in dark mode: three KPI tiles for day progress, completed and tracked time, today's drag-and-drop timeline, next up, today's habits and progress by area" width="100%" /><br/><sub><b>Home</b>: today's numbers, timeline, next up and habits</sub></p>
 
 <table>
   <tr>
@@ -68,16 +67,18 @@ It optimises for **consistency, clarity, flexibility, realistic planning and lon
     <td width="50%"><img src="docs/screenshots/calendar-week-dark.png" alt="Calendar week view with draggable blocks" /><br/><sub><b>Calendar</b>: drag, drop and resize</sub></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/week-light.png" alt="Week board in light theme with goal progress" /><br/><sub><b>Week</b> (light theme): goals, day columns, templates</sub></td>
-    <td><img src="docs/screenshots/analytics-dark.png" alt="Analytics dashboard with charts" /><br/><sub><b>Analytics</b>: where the time actually went</sub></td>
+    <td><img src="docs/screenshots/week-light.png" alt="Week plan in light theme with goal progress, weekly KPIs and day columns" /><br/><sub><b>Week plan</b> (light theme): goals, day columns, templates</sub></td>
+    <td><img src="docs/screenshots/analytics-dark.png" alt="Analytics with KPI tiles, planned vs completed bars and a focused-hours area chart" /><br/><sub><b>Analytics</b>: where the time actually went</sub></td>
   </tr>
   <tr>
     <td><img src="docs/screenshots/shamsi-month.png" alt="Month calendar in the Shamsi (Solar Hijri) calendar with Persian day names and digits" /><br/><sub><b>Shamsi calendar</b>: Persian names and digits, week starts Saturday</sub></td>
-    <td><img src="docs/screenshots/dashboard-light.png" alt="Dashboard in light theme" /><br/><sub><b>Dashboard</b> (light theme)</sub></td>
+    <td><img src="docs/screenshots/dashboard-light.png" alt="Home in the light theme, on grey surfaces" /><br/><sub><b>Home</b> (light theme)</sub></td>
   </tr>
 </table>
 
 <p align="center"><img src="docs/screenshots/mobile-today.png" alt="Today view on a phone with bottom navigation" width="300" /><br/><sub><b>Mobile</b>: complete, time and reschedule from your phone</sub></p>
+
+The visual system (colours, type, spacing and the rules that keep it from looking templated) is documented in [DESIGN.md](DESIGN.md).
 
 ## 🚀 Quick start
 
@@ -115,6 +116,7 @@ Switch under **Settings → Calendar & language**, or pick it during setup:
 - **Use Iranian defaults** sets Shamsi, Persian names and digits, a Saturday week start and a Saturday–Thursday working week in one click.
 - **Quick Add understands Persian**: `ورزش ۲ ساعت فردا ۱۸:۰۰`, `کتاب شنبه`, `امروز`, `پس‌فردا`.
 - Conversion uses the browser's built-in `Intl` Persian calendar, so there's no extra dependency. Dates are always stored in Gregorian form, so switching calendars loses nothing.
+- **Try it instantly:** [`/?demo=1&calendar=jalali`](https://personal-os-nine-lime.vercel.app/?demo=1&calendar=jalali) opens the demo with the Shamsi calendar, Persian month names and digits.
 
 > **فارسی:** این برنامه از تقویم شمسی پشتیبانی می‌کند: نام ماه‌ها و روزها به فارسی، اعداد فارسی، شروع هفته از شنبه و انتخاب تاریخ شمسی. از مسیر «Settings → Calendar & language» فعالش کنید.
 
