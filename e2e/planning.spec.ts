@@ -143,7 +143,7 @@ test("reschedule dialog moves a block to tomorrow", async ({ page }) => {
   await page.getByRole("button", { name: "Actions for Database design" }).click();
   await page.getByRole("menuitem", { name: "Reschedule…" }).click();
   const rs = page.getByRole("dialog", { name: /Reschedule/ });
-  await rs.getByRole("radio", { name: /Tomorrow/ }).click();
+  await rs.getByRole("radio", { name: /^Tomorrow/ }).click();
   await rs.getByRole("button", { name: "Move" }).click();
   await expect(page.getByText(/Moved “Database design”/)).toBeVisible();
   await expect(page.getByText("No tasks planned for this day.")).toBeVisible();
