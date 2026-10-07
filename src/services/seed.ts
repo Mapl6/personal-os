@@ -77,16 +77,19 @@ export interface WorkspaceSetup {
 }
 
 /** One-click demo (`/?demo=1` or "Try the demo"): default areas and goals plus example data. */
-export function demoWorkspace(timeZone?: string): WorkspaceSetup {
+export function demoWorkspace(timeZone?: string, calendar?: "gregorian" | "jalali"): WorkspaceSetup {
+  const jalali = calendar === "jalali";
   return {
     name: "",
-    workingDays: [1, 2, 3, 4, 5, 6],
+    // Saturday–Thursday working week for the Shamsi demo, like onboarding does.
+    workingDays: jalali ? [6, 0, 1, 2, 3, 4] : [1, 2, 3, 4, 5, 6],
     dayStartMinutes: 9 * 60,
     dayEndMinutes: 19 * 60,
     areaNames: DEFAULT_AREAS.map((a) => a.name),
     weeklyGoals: DEFAULT_WEEKLY_GOALS,
     includeExamples: true,
     timeZone,
+    ...(jalali ? { calendar: "jalali" as const } : {}),
   };
 }
 
