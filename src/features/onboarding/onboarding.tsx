@@ -47,7 +47,11 @@ export function Onboarding() {
     { invalidate: ["all"], success: "You're all set. Plans are hypotheses — adjust freely." },
   );
 
-  const demo = useAction(() => setupWorkspace(getServices(), demoWorkspace(Intl.DateTimeFormat().resolvedOptions().timeZone)), {
+  const demo = useAction(() => {
+    // `/?demo=1&calendar=jalali` opens the demo with the Shamsi calendar.
+    const calendar = new URLSearchParams(window.location.search).get("calendar") === "jalali" ? "jalali" : undefined;
+    return setupWorkspace(getServices(), demoWorkspace(Intl.DateTimeFormat().resolvedOptions().timeZone, calendar));
+  }, {
     invalidate: ["all"],
     success: "Exploring with example data. Delete it any time in Settings → Data.",
     onSuccess: () => window.history.replaceState(null, "", window.location.pathname),
@@ -118,7 +122,7 @@ export function Onboarding() {
                     size="sm"
                     role="radio"
                     aria-checked={calendar === v}
-                    variant={calendar === v ? "default" : "secondary"}
+                    variant={calendar === v ? "secondary" : "outline"}
                     className="flex-1"
                     onClick={() => {
                       setCalendar(v);
