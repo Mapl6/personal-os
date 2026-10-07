@@ -7,6 +7,7 @@ import { Field, WeekdayPicker } from "@/components/shared/field";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { requestPersistentStorage } from "@/lib/storage";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useAction } from "@/hooks/use-action";
@@ -44,7 +45,14 @@ export function Onboarding() {
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         calendar,
       }),
-    { invalidate: ["all"], success: "You're all set. Plans are hypotheses — adjust freely." },
+    {
+      invalidate: ["all"],
+      success: "You're all set. Plans are hypotheses — adjust freely.",
+      // Ask the browser to keep IndexedDB data around (Safari may evict it otherwise).
+      onSuccess: () => {
+        requestPersistentStorage().catch(() => {});
+      },
+    },
   );
 
   const demo = useAction(() => setupWorkspace(getServices(), demoWorkspace(Intl.DateTimeFormat().resolvedOptions().timeZone)), {

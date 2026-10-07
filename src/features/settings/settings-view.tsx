@@ -17,6 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { useAction } from "@/hooks/use-action";
 import { useSettings } from "@/hooks/queries";
 import { parseTime, timeValue } from "@/lib/date";
+import { formatBytes, getStorageEstimate, isStoragePersisted, requestPersistentStorage } from "@/lib/storage";
 import { cn } from "@/lib/utils/cn";
 import { getServices } from "@/services";
 import { ACCENTS, type Settings } from "@/types/domain";
@@ -332,8 +333,65 @@ function DataSection() {
       <Row label="Reset data" hint="Deletes everything and restarts onboarding.">
         <Button size="sm" variant="destructive" className="w-full" onClick={() => setConfirmReset(true)}>Reset all data</Button>
       </Row>
+      <StorageStatusRow />
       <ConfirmDialog open={confirmReset} onOpenChange={setConfirmReset} title="Delete all data?" description="Tasks, history, goals, habits, reviews and settings will be removed from this device. Export first if you may want them back." confirmLabel="Delete everything" destructive onConfirm={() => reset.mutate()} />
       <ConfirmDialog open={pendingImport !== null} onOpenChange={(o) => !o && setPendingImport(null)} title="Replace current data?" description="Importing replaces everything currently stored. The file is validated before anything is changed." confirmLabel="Import" onConfirm={() => { importData.mutate(pendingImport); setPendingImport(null); }} />
     </>
+  );
+}
+
+function StorageStatusRow() {
+  const [persisted, setPersisted] = React.useState<boolean | null>(null);
+  const [usage, setUsage] = React.useState<{ usage: number; quota: number } | null>(null);
+  const [requesting, setRequesting] = React.useState(false);
+
+  const refresh = React.useCallback(async () => {
+    setPersisted(await isStoragePersisted());
+    setUsage(await getStorageEstimate());
+  }, []);
+
+  React.useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  const request = async () => {
+    setRequesting(true);
+    try {
+      const granted = await requestPersistentStorage();
+      if (granted) {
+        toast.success("Persistent storage enabled — your data is protected from eviction.");
+      } else if (granted === false) {
+        toast.error("The browser declined persistent storage.");
+      }
+    } finally {
+      setRequesting(false);
+      refresh();
+    }
+  };
+
+  // Storage API unavailable (older browsers): hide the row entirely.
+  if (persisted === null && usage === null) return null;
+
+  const hint =
+    persisted === true
+      ? `Persistent — safe from automatic eviction.${usage ? ` ${formatBytes(usage.usage)} used.` : ""}`
+      : persisted === false
+        ? `Not persistent — the browser may delete your data under storage pressure.${usage ? ` ${formatBytes(usage.usage)} used.` : ""}`
+        : usage
+          ? `${formatBytes(usage.usage)} used.`
+          : "Storage status unavailable.";
+
+  return (
+    <Row label="Storage" hint={hint}>
+      {persisted === false ? (
+        <Button size="sm" variant="secondary" className="w-full" onClick={request} disabled={requesting}>
+          {requesting ? "Requesting…" : "Keep my data"}
+        </Button>
+      ) : (
+        <div className="text-sm text-muted-foreground sm:text-right">
+          {persisted === true ? "Protected ✓" : "—"}
+        </div>
+      )}
+    </Row>
   );
 }
