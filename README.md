@@ -1,3 +1,5 @@
+<p align="center">🌐 <a href="README.fa.md">فارسی</a></p>
+
 <div align="center">
 
 <img src="docs/screenshots/banner.png" alt="Personal OS: plan, do and review your days, weeks and months. Local-first, no account. Shown next to the dashboard with today's progress and schedule." width="100%" />
