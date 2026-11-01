@@ -35,7 +35,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { workActions } from "@/features/tasks/actions";
 import { useLookups } from "@/features/tasks/use-lookups";
 import { perform } from "@/hooks/perform";
-import { useBlocks, useSettings, useTimerState } from "@/hooks/queries";
+import { useBlocks, useSettings, useTimerState, useFeatures } from "@/hooks/queries";
 import { useNow } from "@/hooks/use-now";
 import { formatDuration, formatTime, relativeDayLabel, toDateKey, type WeekdayIndex } from "@/lib/date";
 import { parseQuickAdd, type ParsedQuickAdd } from "@/lib/quick-add/parser";
@@ -58,6 +58,7 @@ export function CommandCenter() {
 }
 
 function CommandBody() {
+  const features = useFeatures();
   const router = useRouter();
   const toggleTheme = useToggleTheme();
   const lookups = useLookups();
@@ -245,7 +246,7 @@ function CommandBody() {
               </CommandItem>
             </CommandGroup>
             <CommandGroup heading="Go to">
-              {NAV_ITEMS.map((n) => (
+              {NAV_ITEMS.filter((n) => features.routeOn(n.href)).map((n) => (
                 <CommandItem key={n.href} value={`go ${n.label}`} onSelect={() => go(n.href)}>
                   <n.icon /> {n.label}
                   {n.shortcut && (

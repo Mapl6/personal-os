@@ -7,16 +7,17 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { TimerWidget } from "@/features/time-tracking/timer-widget";
 import { cn } from "@/lib/utils/cn";
 import { ui, uiStore } from "@/store/ui-store";
-import { useSettings } from "@/hooks/queries";
-import { MOBILE_PRIMARY, NAV_SPACES, SPACE_TAB_LABELS, isActive, navItem, orderNavSpaces, spaceOf, type NavSpace } from "./nav-items";
+import { useFeatures, useSettings } from "@/hooks/queries";
+import { MOBILE_PRIMARY, SPACE_TAB_LABELS, isActive, navItem, orderNavSpaces, spaceOf, type NavSpace } from "./nav-items";
 
 /** Mobile navigation: four primary spaces, a central add button and a "More" sheet listing every page by space. */
 export function BottomNav() {
   const pathname = usePathname();
   const moreOpen = uiStore.useStore((s) => s.mobileNavOpen);
   const { settings } = useSettings();
-  const spaces = orderNavSpaces(settings.customization.navOrder, settings.customization.hiddenNav);
-  const primary = NAV_SPACES.filter((n) => MOBILE_PRIMARY.includes(n.href));
+  const { routeOn } = useFeatures();
+  const spaces = orderNavSpaces(settings.customization.navOrder, settings.customization.hiddenNav, routeOn);
+  const primary = orderNavSpaces([], [], routeOn).filter((n) => MOBILE_PRIMARY.includes(n.href));
   const [first, second] = [primary.slice(0, 2), primary.slice(2)];
   const current = spaceOf(pathname)?.href;
   const moreActive = !!current && !MOBILE_PRIMARY.includes(current);
@@ -26,7 +27,7 @@ export function BottomNav() {
     return (
       <Link
         key={space.href}
-        href={space.href}
+        href={space.pages[0]}
         aria-current={active ? "page" : undefined}
         className={cn("flex flex-1 flex-col items-center gap-1 py-2 text-[11px] font-medium", active ? "text-primary" : "text-muted-foreground")}
       >

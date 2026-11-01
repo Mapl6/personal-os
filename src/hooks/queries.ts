@@ -1,6 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import * as React from "react";
+import { isFeatureEnabled, isRouteEnabled } from "@/modules";
 import type { DateRange } from "@/lib/date";
 import { getServices } from "@/services";
 import { DEFAULT_SETTINGS } from "@/types/domain";
@@ -45,6 +47,20 @@ export function usePriorityLabel() {
   const { settings } = useSettings();
   const labels = settings.customization.priorityLabels;
   return (p: keyof typeof labels) => labels[p] || p;
+}
+
+/** Feature flags, resolved against the registry. */
+export function useFeatures() {
+  const { settings } = useSettings();
+  const flags = settings.features;
+  return React.useMemo(
+    () => ({
+      flags,
+      isOn: (id: string) => isFeatureEnabled(flags, id),
+      routeOn: (href: string) => isRouteEnabled(flags, href),
+    }),
+    [flags],
+  );
 }
 
 export function useAreas() {

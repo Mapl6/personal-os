@@ -11,7 +11,7 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { TimerWidget } from "@/features/time-tracking/timer-widget";
 import { cn } from "@/lib/utils/cn";
 import { ui } from "@/store/ui-store";
-import { useSettings } from "@/hooks/queries";
+import { useFeatures, useSettings } from "@/hooks/queries";
 import { orderNavSpaces, spaceOf } from "./nav-items";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -33,7 +33,8 @@ function Brand({ collapsed }: { collapsed: boolean }) {
 export function Sidebar() {
   const pathname = usePathname();
   const { settings } = useSettings();
-  const spaces = orderNavSpaces(settings.customization.navOrder, settings.customization.hiddenNav);
+  const { routeOn } = useFeatures();
+  const spaces = orderNavSpaces(settings.customization.navOrder, settings.customization.hiddenNav, routeOn);
   const current = spaceOf(pathname)?.href;
   const navItems = spaces.filter((s) => s.href !== "/settings");
   const settingsItem = spaces.find((s) => s.href === "/settings");
@@ -90,7 +91,7 @@ export function Sidebar() {
           const link = (
             <Link
               key={item.href}
-              href={item.href}
+              href={item.pages[0]}
               aria-current={active ? "page" : undefined}
               className={cn(
                 "relative flex h-9 items-center gap-3 rounded-md px-2.5 text-sm transition-colors",

@@ -20,6 +20,7 @@ import { SpaceTabs } from "./space-tabs";
 import { ThemeSync } from "./theme-sync";
 import { StoragePersistence } from "./storage-persistence";
 import { ThemeToggle } from "./theme-toggle";
+import { FeatureGate } from "./feature-gate";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const boot = useBoot();
@@ -90,7 +91,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </header>
         <main key={calendarKey} id="main" className="mx-auto w-full max-w-[1440px] flex-1 px-4 pb-36 pt-4 md:px-6 md:pb-12 md:pt-6 lg:px-8">
           <SpaceTabs />
-          {children}
+          <FeatureGate>{children}</FeatureGate>
         </main>
       </div>
       <BottomNav />

@@ -38,6 +38,7 @@ import {
   weekdayOf,
   type WeekdayIndex,
 } from "@/lib/date";
+import { isWidgetEnabled } from "@/modules";
 import { ui } from "@/store/ui-store";
 
 function greeting(hour: number) {
@@ -245,7 +246,9 @@ export function DashboardView() {
             ),
           },
         };
-        const visible = day.settings.customization.dashboardWidgets.filter((w) => w.visible && widgets[w.id]);
+        const visible = day.settings.customization.dashboardWidgets.filter(
+          (w) => w.visible && widgets[w.id] && isWidgetEnabled(day.settings.features, w.id),
+        );
         const main = visible.filter((w) => !widgets[w.id]!.side);
         const side = visible.filter((w) => widgets[w.id]!.side);
         return (
