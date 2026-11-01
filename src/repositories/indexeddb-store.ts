@@ -8,23 +8,26 @@ import {
   type DataStore,
   type Entity,
   type IndexedField,
+  type MetaRepository,
   type SettingsRepository,
 } from "./types";
 
 const DB_NAME = "personal-os";
-const DB_VERSION = 1;
+/** Bump when collections or indexes change; upgrade() only adds what is missing. */
+const DB_VERSION = 2;
 const META_STORE = "meta";
 
 type DB = IDBPDatabase<unknown>;
 
 function openDatabase(name = DB_NAME): Promise<DB> {
   return openDB(name, DB_VERSION, {
-    upgrade(db) {
+    upgrade(db, _old, _new, tx) {
       for (const collection of COLLECTION_NAMES) {
-        if (db.objectStoreNames.contains(collection)) continue;
-        const store = db.createObjectStore(collection, { keyPath: "id" });
+        const store = db.objectStoreNames.contains(collection)
+          ? tx.objectStore(collection)
+          : db.createObjectStore(collection, { keyPath: "id" });
         for (const index of COLLECTION_INDEXES[collection]) {
-          store.createIndex(index, index, { unique: false });
+          if (!store.indexNames.contains(index)) store.createIndex(index, index, { unique: false });
         }
       }
       if (!db.objectStoreNames.contains(META_STORE)) {
@@ -102,21 +105,25 @@ class IndexedDbSettings implements SettingsRepository {
   }
 }
 
+class IndexedDbMeta implements MetaRepository {
+  constructor(private readonly db: Promise<DB>) {}
+  async get<T>(key: string) {
+    return (await (await this.db).get(META_STORE, key)) as T | undefined;
+  }
+  async set(key: string, value: unknown) {
+    await (await this.db).put(META_STORE, value, key);
+  }
+  async delete(key: string) {
+    await (await this.db).delete(META_STORE, key);
+  }
+}
+
 export function createIndexedDbStore(name?: string): DataStore {
   const db = openDatabase(name);
-  const col = <T extends Entity>(n: CollectionName) => new IndexedDbCollection<T>(db, n);
+  const collections = Object.fromEntries(COLLECTION_NAMES.map((n) => [n, new IndexedDbCollection(db, n)]));
   return {
-    areas: col("areas"),
-    projects: col("projects"),
-    tasks: col("tasks"),
-    blocks: col("blocks"),
-    timeEntries: col("timeEntries"),
-    goals: col("goals"),
-    goalProgress: col("goalProgress"),
-    habits: col("habits"),
-    habitEntries: col("habitEntries"),
-    reviews: col("reviews"),
-    templates: col("templates"),
+    ...(collections as unknown as Omit<DataStore, "settings" | "meta">),
     settings: new IndexedDbSettings(db),
+    meta: new IndexedDbMeta(db),
   };
 }

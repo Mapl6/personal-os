@@ -7,6 +7,7 @@ import {
   CalendarClock,
   CheckSquare,
   Map as MapIcon,
+  Inbox,
   Moon,
   NotebookPen,
   Pause,
@@ -35,13 +36,14 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { workActions } from "@/features/tasks/actions";
 import { useLookups } from "@/features/tasks/use-lookups";
 import { perform } from "@/hooks/perform";
-import { useBlocks, useSettings, useTimerState } from "@/hooks/queries";
+import { useBlocks, useSettings, useTimerState, useFeatures } from "@/hooks/queries";
 import { useNow } from "@/hooks/use-now";
 import { formatDuration, formatTime, relativeDayLabel, toDateKey, type WeekdayIndex } from "@/lib/date";
 import { parseQuickAdd, type ParsedQuickAdd } from "@/lib/quick-add/parser";
 import { describeRecurrence } from "@/lib/recurrence";
 import { getServices } from "@/services";
 import { ui, uiStore } from "@/store/ui-store";
+import { captureToInbox } from "@/features/inbox/capture";
 
 type Page = "root" | "timer" | "reschedule";
 
@@ -58,6 +60,7 @@ export function CommandCenter() {
 }
 
 function CommandBody() {
+  const features = useFeatures();
   const router = useRouter();
   const toggleTheme = useToggleTheme();
   const lookups = useLookups();
@@ -122,9 +125,16 @@ function CommandBody() {
         ),
       {
         success: (t) => `Created “${t.title}”`,
-        undo: (t) => getServices().tasks.remove(t.id),
+        undo: (t) => getServices().tasks.remove(t.id).then((item) => getServices().trash.deleteForever(item.id)),
       },
     );
+  };
+
+  const inboxOn = features.routeOn("/inbox");
+  const capture = () => {
+    if (!search.trim()) return;
+    ui.closeCommand();
+    captureToInbox({ text: search });
   };
 
   const area = parsed?.areaId ? lookups.areaById.get(parsed.areaId) : undefined;
@@ -144,6 +154,11 @@ function CommandBody() {
       loop
       shouldFilter={true}
       onKeyDown={(e) => {
+        if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && page === "root" && inboxOn && search.trim()) {
+          e.preventDefault();
+          capture();
+          return;
+        }
         if (e.key === "Backspace" && !search && page !== "root") {
           e.preventDefault();
           setPage("root");
@@ -194,6 +209,15 @@ function CommandBody() {
             <CommandItem forceMount value={`__create_edit ${search}`} onSelect={() => openEditorFrom(parsed)}>
               <Wand2 /> Create with details…
             </CommandItem>
+            {inboxOn && (
+              <CommandItem forceMount value={`__capture ${search}`} onSelect={capture}>
+                <Inbox /> Capture to inbox
+                <span className="ml-auto flex gap-0.5">
+                  <Kbd>⌘</Kbd>
+                  <Kbd>↵</Kbd>
+                </span>
+              </CommandItem>
+            )}
           </CommandGroup>
         )}
 
@@ -245,7 +269,7 @@ function CommandBody() {
               </CommandItem>
             </CommandGroup>
             <CommandGroup heading="Go to">
-              {NAV_ITEMS.map((n) => (
+              {NAV_ITEMS.filter((n) => features.routeOn(n.href)).map((n) => (
                 <CommandItem key={n.href} value={`go ${n.label}`} onSelect={() => go(n.href)}>
                   <n.icon /> {n.label}
                   {n.shortcut && (

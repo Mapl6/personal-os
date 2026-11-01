@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider, useTheme } from "next-themes";
 import * as React from "react";
 import { Toaster } from "sonner";
+import { ChangeFeedBridge } from "@/components/layout/change-feed-bridge";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { getQueryClient } from "@/lib/query/client";
 
@@ -27,6 +28,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={client}>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
         <TooltipProvider delayDuration={300}>
+          <ChangeFeedBridge />
           {children}
           <ThemedToaster />
         </TooltipProvider>

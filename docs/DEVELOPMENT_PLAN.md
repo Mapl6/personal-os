@@ -6,6 +6,31 @@ How to build the [roadmap](ROADMAP.md) step by step. Each phase is split into **
 
 Feature IDs point into the [feature catalogue](features/README.md); "how" lives in the [technical docs](technical/README.md).
 
+## Progress
+
+_Updated 2026-11-01 · branch `claude/confident-ptolemy-5odg2c`_
+
+| Milestone | Status | Notes |
+| --- | --- | --- |
+| 1.0 Groundwork | ✅ Done | Module registry, typed collections |
+| 1.1 Data safety | ✅ Done | Migrations with snapshots, schema v3, trash with restore, change feed, storage persistence |
+| 1.2 Feature toggles | ✅ Done | Features page, presets, gated routes/nav/widgets/⌘K |
+| 1.3 PWA and share target | ⏳ Not started | Manifest exists from main; service worker and share target still to do |
+| 1.4 Inbox and capture | ✅ Done | Inbox with keyboard processing, ⌘K ⌘↵ capture, `C` shortcut, mobile capture sheet, paste/drop files, brain dump. Multi-select still open |
+| 1.5 Daily check-in | ✅ Done | Two-tap mood + energy on Today, day rating in the daily review, `Review.energy` migrated |
+| 1.6 Pages and editor | ✅ Mostly done | Page tree, favourites, recents, icons, BlockNote editor. Open: drag-and-drop in the tree, cover/area/tags in the header, to-do → task promotion (P1-34), markdown paste/copy (P1-35) |
+| 1.7 Daily notes | ✅ Mostly done | One note per day (safe across tabs), prev/next, jump to date, live plan/habits/check-ins beside the note. Open: live sections as blocks inside the note, Shamsi heatmap |
+| 1.8 Links and backlinks | 🟡 In progress | `[[` wiki links, `@` mentions, `#tags`, link index on save, backlinks on pages. Open: backlinks on tasks/projects/goals, tag pages, markdown task notes |
+| 1.9 Search | 🟡 In progress | Persian normaliser (ZWNJ, Arabic letters, digits, diacritics) and search index done and tested. Open: ⌘K results and the search page |
+| 1.10 Wrap-up | ⏳ Not started | Large seed, perf pass, Shamsi/offline e2e variants, docs |
+
+**Deviations from the plan (to record as ADR revisions in 1.10):**
+
+- Pages store BlockNote JSON, not Yjs. Yjs arrives with sync in Phase 4; the editor wrapper is the only place that changes.
+- Attachments are Blobs in IndexedDB, not OPFS: simpler, already in backups, deduplicated by SHA-256.
+- Trash keeps deleted rows as restorable bundles instead of a `deletedAt` field on every row, so queries never need to filter deleted items.
+- Search runs on the main thread for now; it moves to a worker in the 1.10 performance pass if the large seed needs it.
+
 ## How to read this
 
 **Sizes** are rough, for one developer: **S** ≈ up to 1 day · **M** ≈ 2–4 days · **L** ≈ 1–2 weeks. They are for ordering and spotting big items, not deadlines.

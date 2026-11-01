@@ -12,25 +12,39 @@ export interface AppSection {
   domain: RoadmapDomain;
 }
 
-const CURRENT_GROUP: Record<string, SectionGroup> = { "/analytics": "Reflect", "/reviews": "Reflect", "/settings": "System" };
+const CURRENT_GROUP: Record<string, SectionGroup> = {
+  "/analytics": "Reflect",
+  "/reviews": "Reflect",
+  "/settings": "System",
+  "/features": "System",
+  "/trash": "System",
+  "/inbox": "Capture",
+  "/brain-dump": "Capture",
+  "/pages": "Know",
+  "/daily": "Know",
+  "/search": "Know",
+}
+
+const DOMAIN_BY_GROUP: Record<SectionGroup, RoadmapDomain> = {
+  Plan: "Planning",
+  Capture: "Capture",
+  Know: "Knowledge",
+  Life: "Life modules",
+  Reflect: "Planning",
+  AI: "AI",
+  System: "Platform",
+};
 
 /** Today's sections come straight from the real sidebar, so this stays true as the app changes. */
 const CURRENT: AppSection[] = NAV_ITEMS.map((item) => ({
   label: item.label,
   group: CURRENT_GROUP[item.href] ?? "Plan",
   phase: 0,
-  domain: CURRENT_GROUP[item.href] === "System" ? "Platform" : "Planning",
+  domain: DOMAIN_BY_GROUP[CURRENT_GROUP[item.href] ?? "Plan"],
 }));
 
 /** Sections the roadmap adds, as they would appear in the sidebar. */
 const PLANNED: AppSection[] = [
-  { label: "Inbox", group: "Capture", phase: 1, domain: "Capture" },
-  { label: "Brain dump", group: "Capture", phase: 1, domain: "Capture" },
-  { label: "Pages", group: "Know", phase: 1, domain: "Knowledge" },
-  { label: "Daily notes", group: "Know", phase: 1, domain: "Knowledge" },
-  { label: "Search", group: "Know", phase: 1, domain: "Knowledge" },
-  { label: "Features", group: "System", phase: 1, domain: "Platform" },
-  { label: "Trash", group: "System", phase: 1, domain: "Platform" },
   { label: "Focus mode", group: "Plan", phase: 2, domain: "Planning" },
   { label: "Challenges", group: "Plan", phase: 2, domain: "Life modules" },
   { label: "Read later", group: "Capture", phase: 2, domain: "Capture" },

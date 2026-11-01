@@ -36,7 +36,7 @@ function TemplateCard({ template }: { template: WeekTemplate }) {
   const [confirm, setConfirm] = React.useState(false);
   const dirty = name !== template.name || JSON.stringify(items) !== JSON.stringify(template.items);
   const save = useAction(() => getServices().templates.update(template.id, { name, items }), { invalidate: ["templates"], success: "Template saved" });
-  const remove = useAction(() => getServices().templates.remove(template.id), { invalidate: ["templates"], success: "Template deleted" });
+  const remove = useAction(() => getServices().templates.remove(template.id), { invalidate: ["templates", "trash"], success: "Template moved to trash", undo: (item) => getServices().trash.restore(item.id) });
   const order = Array.from({ length: 7 }, (_, i) => (i + settings.weekStartsOn) % 7);
   const patch = (id: string, p: Partial<TemplateItem>) => setItems((xs) => xs.map((x) => (x.id === id ? { ...x, ...p } : x)));
 

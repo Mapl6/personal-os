@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient, type QueryKey } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-export type InvalidateGroup = "work" | "goals" | "habits" | "reviews" | "templates" | "areas" | "projects" | "settings" | "all";
+export type InvalidateGroup = "work" | "goals" | "habits" | "reviews" | "templates" | "areas" | "projects" | "settings" | "trash" | "inbox" | "pages" | "checkins" | "all";
 
 const GROUPS: Record<Exclude<InvalidateGroup, "all">, QueryKey[]> = {
   // Anything touching tasks/blocks/time can affect goals & analytics too.
@@ -15,6 +15,10 @@ const GROUPS: Record<Exclude<InvalidateGroup, "all">, QueryKey[]> = {
   areas: [["areas"], ["tasks"], ["projects"]],
   projects: [["projects"], ["tasks"]],
   settings: [["settings"]],
+  trash: [["trash"]],
+  inbox: [["inbox"], ["attachments"], ["tasks"], ["pages"], ["trash"]],
+  pages: [["pages"], ["pageContents"], ["links"], ["trash"]],
+  checkins: [["checkIns"], ["dayRatings"]],
 };
 
 export interface ActionOptions<TVars, TResult> {

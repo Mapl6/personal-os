@@ -186,3 +186,53 @@ html[data-density="compact"] { font-size: 14.5px; --hour-height: 48px; }
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------------------------------------------------------------- Page editor */
+.pos-editor .bn-container,
+.pos-editor .bn-editor {
+  background: transparent;
+  font-family: inherit;
+}
+.pos-editor .bn-editor {
+  padding-inline: 3rem;
+}
+@media (max-width: 767px) {
+  .pos-editor .bn-editor {
+    padding-inline: 1.25rem;
+  }
+}
+/* Persian and English mixed freely: each block picks its own direction. */
+.pos-editor .bn-inline-content {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+.pos-ref {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2em;
+  padding: 0 0.3em;
+  border-radius: 0.3em;
+  color: var(--primary);
+  background: color-mix(in oklab, var(--primary) 12%, transparent);
+  cursor: pointer;
+  text-decoration: none;
+}
+.pos-ref:hover {
+  background: color-mix(in oklab, var(--primary) 22%, transparent);
+}
+.pos-ref-icon {
+  width: 0.85em;
+  height: 0.85em;
+}
+.pos-ref-missing {
+  color: var(--muted-foreground);
+  text-decoration: line-through;
+  background: var(--muted);
+}
+/* The writing surface is the focus; no ring around the whole document. */
+.pos-editor .bn-editor:focus-visible {
+  box-shadow: none;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-ring-offset-shadow: 0 0 #0000;
+  outline: none;
+}

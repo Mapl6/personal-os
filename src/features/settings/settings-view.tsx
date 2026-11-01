@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils/cn";
 import { getServices } from "@/services";
 import { ACCENTS, type Settings } from "@/types/domain";
 import { CustomizeSection } from "./customize-section";
+import { StorageSection } from "./storage-section";
 import { TagsSection } from "./tags-section";
 import { TemplatesSection } from "./template-editor";
 
@@ -305,7 +306,8 @@ function DataSection() {
 
   return (
     <>
-      <Row label="Export JSON" hint="A complete backup of every entity.">
+      <StorageSection />
+      <Row label="Export JSON" hint="A complete backup of every entity, including attachments.">
         <Button size="sm" variant="secondary" className="w-full" onClick={() => exportData.mutate()} disabled={exportData.isPending}><Download /> Export</Button>
       </Row>
       <Row label="Import JSON" hint="Replaces all current data after validation.">

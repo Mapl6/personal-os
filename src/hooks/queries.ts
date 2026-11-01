@@ -1,6 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import * as React from "react";
+import { isFeatureEnabled, isRouteEnabled } from "@/modules";
 import type { DateRange } from "@/lib/date";
 import { getServices } from "@/services";
 import { DEFAULT_SETTINGS } from "@/types/domain";
@@ -26,6 +28,15 @@ export const qk = {
 
 const s = () => getServices();
 
+/** One-time startup work: data migrations and trash purge. Everything else waits for it. */
+export function useBoot() {
+  return useQuery({ queryKey: ["boot"], queryFn: () => s().data.boot(), staleTime: Infinity, retry: false });
+}
+
+export function useTrash() {
+  return useQuery({ queryKey: ["trash"], queryFn: () => s().trash.list() });
+}
+
 export function useSettings() {
   const q = useQuery({ queryKey: qk.settings, queryFn: () => s().data.getSettings() });
   return { ...q, settings: q.data ?? DEFAULT_SETTINGS };
@@ -36,6 +47,20 @@ export function usePriorityLabel() {
   const { settings } = useSettings();
   const labels = settings.customization.priorityLabels;
   return (p: keyof typeof labels) => labels[p] || p;
+}
+
+/** Feature flags, resolved against the registry. */
+export function useFeatures() {
+  const { settings } = useSettings();
+  const flags = settings.features;
+  return React.useMemo(
+    () => ({
+      flags,
+      isOn: (id: string) => isFeatureEnabled(flags, id),
+      routeOn: (href: string) => isRouteEnabled(flags, href),
+    }),
+    [flags],
+  );
 }
 
 export function useAreas() {
@@ -126,4 +151,53 @@ export function useReviews() {
 
 export function useTemplates() {
   return useQuery({ queryKey: qk.templates, queryFn: () => s().store.templates.list() });
+}
+
+export function useInbox() {
+  return useQuery({
+    queryKey: ["inbox"],
+    queryFn: async () => (await s().store.inbox.list()).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+  });
+}
+
+export function useAttachment(id: string | null) {
+  return useQuery({ queryKey: ["attachments", id], queryFn: async () => (id ? ((await s().store.attachments.get(id)) ?? null) : null), enabled: !!id });
+}
+
+export function useCheckIns(date: string | null) {
+  return useQuery({ queryKey: ["checkIns", date], queryFn: () => s().checkIns.forDate(date!), enabled: !!date });
+}
+
+export function useDayRating(date: string | null) {
+  return useQuery({ queryKey: ["dayRatings", date], queryFn: async () => (await s().checkIns.ratingFor(date!)) ?? null, enabled: !!date });
+}
+
+export function usePages() {
+  return useQuery({
+    queryKey: ["pages"],
+    queryFn: async () => (await s().store.pages.list()).sort((a, b) => (a.order < b.order ? -1 : a.order > b.order ? 1 : 0)),
+  });
+}
+
+export function usePageContent(id: string | null) {
+  return useQuery({
+    queryKey: ["pageContents", id],
+    queryFn: async () => (id ? ((await s().pages.content(id)) ?? null) : null),
+    enabled: !!id,
+    // The editor owns the document while open; refetching would reset the cursor.
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useBacklinks(ref: { type: import("@/types/domain").EntityType; id: string } | null) {
+  return useQuery({
+    queryKey: ["links", "to", ref?.type, ref?.id],
+    queryFn: () => s().links.backlinks(ref!),
+    enabled: !!ref,
+  });
+}
+
+export function useTags() {
+  return useQuery({ queryKey: ["links", "tags"], queryFn: () => s().links.tags() });
 }

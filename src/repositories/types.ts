@@ -1,4 +1,12 @@
 import type {
+  Attachment,
+  CheckIn,
+  DayRating,
+  InboxItem,
+  Link,
+  Page,
+  PageContent,
+  TrashItem,
   Area,
   Goal,
   GoalProgress,
@@ -42,20 +50,41 @@ export interface SettingsRepository {
   save(settings: Settings): Promise<Settings>;
 }
 
-export interface DataStore {
-  areas: CollectionRepository<Area>;
-  projects: CollectionRepository<Project>;
-  tasks: CollectionRepository<Task>;
-  blocks: CollectionRepository<ScheduleBlock>;
-  timeEntries: CollectionRepository<TimeEntry>;
-  goals: CollectionRepository<Goal>;
-  goalProgress: CollectionRepository<GoalProgress>;
-  habits: CollectionRepository<Habit>;
-  habitEntries: CollectionRepository<HabitEntry>;
-  reviews: CollectionRepository<Review>;
-  templates: CollectionRepository<WeekTemplate>;
-  settings: SettingsRepository;
+/** Small key/value store for app metadata (schema version, snapshots, search index…). */
+export interface MetaRepository {
+  get<T = unknown>(key: string): Promise<T | undefined>;
+  set(key: string, value: unknown): Promise<void>;
+  delete(key: string): Promise<void>;
 }
+
+/** Row type of every collection. Adding a collection = one line here + one in COLLECTION_NAMES. */
+export interface CollectionTypes {
+  areas: Area;
+  projects: Project;
+  tasks: Task;
+  blocks: ScheduleBlock;
+  timeEntries: TimeEntry;
+  goals: Goal;
+  goalProgress: GoalProgress;
+  habits: Habit;
+  habitEntries: HabitEntry;
+  reviews: Review;
+  templates: WeekTemplate;
+  // Phase 1
+  trash: TrashItem;
+  inbox: InboxItem;
+  attachments: Attachment;
+  checkIns: CheckIn;
+  dayRatings: DayRating;
+  pages: Page;
+  pageContents: PageContent;
+  links: Link;
+}
+
+export type DataStore = { [K in keyof CollectionTypes]: CollectionRepository<CollectionTypes[K]> } & {
+  settings: SettingsRepository;
+  meta: MetaRepository;
+};
 
 export const COLLECTION_NAMES = [
   "areas",
@@ -69,6 +98,14 @@ export const COLLECTION_NAMES = [
   "habitEntries",
   "reviews",
   "templates",
+  "trash",
+  "inbox",
+  "attachments",
+  "checkIns",
+  "dayRatings",
+  "pages",
+  "pageContents",
+  "links",
 ] as const;
 export type CollectionName = (typeof COLLECTION_NAMES)[number];
 
@@ -85,4 +122,12 @@ export const COLLECTION_INDEXES: Record<CollectionName, string[]> = {
   habitEntries: ["habitId", "date"],
   reviews: ["type", "periodStart"],
   templates: [],
+  trash: ["deletedAt"],
+  inbox: ["status"],
+  attachments: ["sha256"],
+  checkIns: ["date"],
+  dayRatings: ["date"],
+  pages: ["parentId", "kind", "periodStart"],
+  pageContents: [],
+  links: ["fromKey", "toKey"],
 };

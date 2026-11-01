@@ -27,8 +27,9 @@ export function ProjectDetail({ id }: { id: string }) {
   const [edit, setEdit] = React.useState(false);
   const [confirm, setConfirm] = React.useState(false);
   const remove = useAction(() => getServices().projects.remove(id), {
-    invalidate: ["projects"],
-    success: "Project deleted — its tasks were kept",
+    invalidate: ["projects", "trash"],
+    success: "Project moved to trash — its tasks were kept",
+    undo: (item) => getServices().trash.restore(item.id),
     onSuccess: () => router.push("/projects"),
   });
 

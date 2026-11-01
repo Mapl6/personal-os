@@ -87,7 +87,7 @@ export function HabitsView() {
 function HabitRow({ habit, days, today, done, onEdit }: { habit: Habit; days: DateKey[]; today: DateKey; done: Set<DateKey>; onEdit: () => void }) {
   const [confirm, setConfirm] = React.useState(false);
   const toggle = useAction((date: DateKey) => getServices().habits.toggle(habit.id, date), { invalidate: ["habits"] });
-  const remove = useAction(() => getServices().habits.remove(habit.id), { invalidate: ["habits"], success: "Habit deleted" });
+  const remove = useAction(() => getServices().habits.remove(habit.id), { invalidate: ["habits", "trash"], success: "Habit moved to trash", undo: (item) => getServices().trash.restore(item.id) });
   const streak = currentStreak(habit, done, today);
   const best = longestStreak(habit, done);
   const last30 = lastNDays(30, today);

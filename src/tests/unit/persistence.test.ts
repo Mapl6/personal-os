@@ -39,6 +39,7 @@ describe("persistence (IndexedDB)", () => {
     await services.data.importAll(JSON.parse(JSON.stringify(backup)));
     expect(await services.store.tasks.list()).toHaveLength(backup.tasks.length);
     expect((await services.data.getSettings()).onboarded).toBe(true);
-    await expect(services.data.importAll({ version: 99 })).rejects.toThrow(/Invalid backup/);
+    await expect(services.data.importAll({ version: 99 })).rejects.toThrow(/newer version/);
+    await expect(services.data.importAll({ nope: true })).rejects.toThrow(/Invalid backup/);
   });
 });

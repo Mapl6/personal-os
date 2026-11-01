@@ -107,19 +107,11 @@ export const workActions = {
     return perform(() => svc().tasks.reopen(task.id));
   },
 
-  async deleteTask(task: Task) {
-    const s = svc();
-    const [blocks, entries] = await Promise.all([
-      s.store.blocks.listBy("taskId", task.id),
-      s.store.timeEntries.listBy("taskId", task.id),
-    ]);
-    return perform(() => s.tasks.remove(task.id), {
-      success: `Deleted “${task.title}”`,
-      undo: async () => {
-        await s.store.tasks.put(task);
-        await s.store.blocks.putMany(blocks);
-        await s.store.timeEntries.putMany(entries);
-      },
+  deleteTask(task: Task) {
+    return perform(() => svc().tasks.remove(task.id), {
+      success: `Moved “${task.title}” to trash`,
+      undo: (item) => svc().trash.restore(item.id),
+      invalidate: [["trash"]],
     });
   },
 

@@ -14,7 +14,8 @@ import { AreaBars } from "@/features/analytics/area-bars";
 import { useGoalProgressList } from "@/features/goals/use-goal-progress";
 import { useLookups } from "@/features/tasks/use-lookups";
 import { useAction } from "@/hooks/use-action";
-import { useAllBlocks, useAllTimeEntries, useReviews, useSettings } from "@/hooks/queries";
+import { DayRatingField } from "@/features/checkin/check-in-card";
+import { useAllBlocks, useAllTimeEntries, useFeatures, useReviews, useSettings } from "@/hooks/queries";
 import { useToday } from "@/hooks/use-now";
 import { computeProjectStats } from "@/lib/analytics/projects";
 import { frequentlyRescheduled, summarizePeriod, timeByArea } from "@/lib/analytics/stats";
@@ -115,6 +116,7 @@ function ReviewForm({ type, periodStart, existing }: { type: ReviewType; periodS
   const [energy, setEnergy] = React.useState<number | null>(existing?.energy ?? null);
   const [dirty, setDirty] = React.useState(false);
   const { settings } = useSettings();
+  const features = useFeatures();
   const questions = settings.customization.reviewQuestions?.[type] ?? REVIEW_QUESTIONS[type];
   const save = useAction(() => getServices().reviews.save({ type, periodStart, answers, energy }), {
     invalidate: ["reviews"],
@@ -131,6 +133,11 @@ function ReviewForm({ type, periodStart, existing }: { type: ReviewType; periodS
         }}
       >
         <CardContent className="space-y-4 pt-4">
+          {type === "daily" && features.isOn("dayRating") && (
+            <Field label="Rate the day">
+              <DayRatingField date={periodStart} />
+            </Field>
+          )}
           {type === "daily" && (
             <Field label="How was my energy?">
               <div className="flex gap-1" role="radiogroup" aria-label="Energy">

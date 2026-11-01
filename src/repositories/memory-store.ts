@@ -1,7 +1,8 @@
+import { deepClone } from "@/lib/utils/clone";
 import { DEFAULT_SETTINGS, type Settings } from "@/types/domain";
-import type { CollectionRepository, DataStore, Entity, IndexedField, SettingsRepository } from "./types";
+import { COLLECTION_NAMES, type CollectionRepository, type DataStore, type Entity, type IndexedField, type MetaRepository, type SettingsRepository } from "./types";
 
-const clone = <T,>(value: T): T => structuredClone(value);
+const clone = deepClone;
 
 export class MemoryCollection<T extends Entity> implements CollectionRepository<T> {
   private items = new Map<string, T>();
@@ -51,20 +52,25 @@ class MemorySettings implements SettingsRepository {
   }
 }
 
+class MemoryMeta implements MetaRepository {
+  private values = new Map<string, unknown>();
+  async get<T>(key: string) {
+    return clone(this.values.get(key)) as T | undefined;
+  }
+  async set(key: string, value: unknown) {
+    this.values.set(key, clone(value));
+  }
+  async delete(key: string) {
+    this.values.delete(key);
+  }
+}
+
 /** In-memory store: used by tests and as an SSR/no-IndexedDB fallback. */
 export function createMemoryStore(): DataStore {
+  const collections = Object.fromEntries(COLLECTION_NAMES.map((n) => [n, new MemoryCollection()]));
   return {
-    areas: new MemoryCollection(),
-    projects: new MemoryCollection(),
-    tasks: new MemoryCollection(),
-    blocks: new MemoryCollection(),
-    timeEntries: new MemoryCollection(),
-    goals: new MemoryCollection(),
-    goalProgress: new MemoryCollection(),
-    habits: new MemoryCollection(),
-    habitEntries: new MemoryCollection(),
-    reviews: new MemoryCollection(),
-    templates: new MemoryCollection(),
+    ...(collections as unknown as Omit<DataStore, "settings" | "meta">),
     settings: new MemorySettings(),
+    meta: new MemoryMeta(),
   };
 }

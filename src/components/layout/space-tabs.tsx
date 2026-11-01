@@ -2,13 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useFeatures } from "@/hooks/queries";
 import { cn } from "@/lib/utils/cn";
 import { SPACE_TAB_LABELS, isActive, navItem, spaceOf } from "./nav-items";
 
 /** Tab bar for the pages inside the current space (e.g. Plan → Calendar · Week plan · Month plan). */
 export function SpaceTabs() {
   const pathname = usePathname();
-  const space = spaceOf(pathname);
+  const { routeOn } = useFeatures();
+  const found = spaceOf(pathname);
+  const space = found && { ...found, pages: found.pages.filter(routeOn) };
   if (!space || space.pages.length < 2) return null;
   return (
     <nav aria-label={space.label} className="-mx-4 mb-6 border-b border-border px-4 md:-mx-6 md:px-6 lg:-mx-8 lg:px-8">

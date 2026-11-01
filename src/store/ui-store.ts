@@ -16,6 +16,7 @@ interface UIState {
   blockEditorId: string | null;
   rolloverOpen: boolean;
   mobileNavOpen: boolean;
+  captureOpen: boolean;
 }
 
 export const uiStore = createStore<UIState>({
@@ -26,6 +27,7 @@ export const uiStore = createStore<UIState>({
   blockEditorId: null,
   rolloverOpen: false,
   mobileNavOpen: false,
+  captureOpen: false,
 });
 
 export const ui = {
@@ -44,4 +46,6 @@ export const ui = {
   openRollover: () => uiStore.set({ rolloverOpen: true, commandOpen: false }),
   closeRollover: () => uiStore.set({ rolloverOpen: false }),
   setMobileNav: (open: boolean) => uiStore.set({ mobileNavOpen: open }),
+  openCapture: () => uiStore.set({ captureOpen: true, commandOpen: false }),
+  closeCapture: () => uiStore.set({ captureOpen: false }),
 };
