@@ -152,3 +152,22 @@ export function useReviews() {
 export function useTemplates() {
   return useQuery({ queryKey: qk.templates, queryFn: () => s().store.templates.list() });
 }
+
+export function useInbox() {
+  return useQuery({
+    queryKey: ["inbox"],
+    queryFn: async () => (await s().store.inbox.list()).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+  });
+}
+
+export function useAttachment(id: string | null) {
+  return useQuery({ queryKey: ["attachments", id], queryFn: async () => (id ? ((await s().store.attachments.get(id)) ?? null) : null), enabled: !!id });
+}
+
+export function useCheckIns(date: string | null) {
+  return useQuery({ queryKey: ["checkIns", date], queryFn: () => s().checkIns.forDate(date!), enabled: !!date });
+}
+
+export function useDayRating(date: string | null) {
+  return useQuery({ queryKey: ["dayRatings", date], queryFn: async () => (await s().checkIns.ratingFor(date!)) ?? null, enabled: !!date });
+}

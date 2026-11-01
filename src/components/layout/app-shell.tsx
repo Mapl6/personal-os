@@ -1,16 +1,17 @@
 "use client";
 
-import { Plus, Search } from "lucide-react";
+import { Inbox, Plus, Search } from "lucide-react";
 import * as React from "react";
 import { Logo } from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CommandCenter } from "@/features/command/command-center";
+import { CaptureSheet } from "@/features/inbox/capture-sheet";
 import { NotificationScheduler, RecurrenceMaterializer } from "@/features/notifications/background";
 import { Onboarding } from "@/features/onboarding/onboarding";
 import { BlockEditorDialog, RescheduleDialog, RolloverDialog, SplitDialog } from "@/features/tasks/schedule-dialogs";
 import { TaskEditorDialog } from "@/features/tasks/task-editor-dialog";
-import { useBoot, useSettings } from "@/hooks/queries";
+import { useBoot, useFeatures, useSettings } from "@/hooks/queries";
 import { setCalendarConfig } from "@/lib/date";
 import { ui } from "@/store/ui-store";
 import { BottomNav } from "./bottom-nav";
@@ -25,6 +26,7 @@ import { FeatureGate } from "./feature-gate";
 export function AppShell({ children }: { children: React.ReactNode }) {
   const boot = useBoot();
   const settingsQuery = useSettings();
+  const features = useFeatures();
   const { settings } = settingsQuery;
   const isLoading = boot.isLoading || settingsQuery.isLoading;
   const isError = boot.isError || settingsQuery.isError;
@@ -81,6 +83,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </span>
           <div className="flex gap-1">
             <ThemeToggle />
+            {features.routeOn("/inbox") && (
+              <Button size="icon-sm" variant="ghost" onClick={() => ui.openCapture()} aria-label="Capture to inbox">
+                <Inbox />
+              </Button>
+            )}
             <Button size="icon-sm" variant="ghost" onClick={() => ui.openCommand()} aria-label="Search">
               <Search />
             </Button>
@@ -97,6 +104,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <BottomNav />
 
       <CommandCenter />
+      <CaptureSheet />
       <TaskEditorDialog />
       <RescheduleDialog />
       <SplitDialog />

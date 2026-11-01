@@ -33,7 +33,7 @@ export function GlobalShortcuts() {
       }
       if (e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target)) return;
       const s = uiStore.get();
-      if (s.commandOpen || s.taskEditor || s.rescheduleBlockId || s.splitBlockId || s.blockEditorId || s.rolloverOpen) return;
+      if (s.commandOpen || s.taskEditor || s.rescheduleBlockId || s.splitBlockId || s.blockEditorId || s.rolloverOpen || s.captureOpen) return;
       if (document.querySelector("[role=dialog],[role=alertdialog],[role=menu]")) return;
       const key = e.key.toLowerCase();
       if (pendingG && Date.now() - pendingG < 1200) {
@@ -52,6 +52,10 @@ export function GlobalShortcuts() {
       if (key === "n") {
         e.preventDefault();
         ui.newTask();
+      }
+      if (key === "c" && isRouteEnabled(featureFlags(), "/inbox") && !location.pathname.startsWith("/inbox")) {
+        e.preventDefault();
+        ui.openCapture();
       }
     };
     window.addEventListener("keydown", onKey);

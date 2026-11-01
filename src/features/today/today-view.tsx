@@ -10,7 +10,8 @@ import { PlannerDnd } from "@/features/calendar/dnd";
 import { TimeGrid, computeGridRange } from "@/features/calendar/time-grid";
 import { UnscheduledPanel } from "@/features/tasks/unscheduled-panel";
 import { TimerWidget } from "@/features/time-tracking/timer-widget";
-import { useBlocks } from "@/hooks/queries";
+import { CheckInCard } from "@/features/checkin/check-in-card";
+import { useBlocks, useFeatures } from "@/hooks/queries";
 import { useToday } from "@/hooks/use-now";
 import { addDaysKey, formatDateKey, relativeDayLabel } from "@/lib/date";
 import { cn } from "@/lib/utils/cn";
@@ -45,6 +46,7 @@ export function TodayView() {
   };
 
   const day = useDay(date);
+  const features = useFeatures();
   const past = useBlocks(today ? { from: addDaysKey(today, -14), to: addDaysKey(today, -1) } : null);
   const unfinishedEarlier = (past.data ?? []).filter((b) => b.status === "planned").length;
 
@@ -125,6 +127,7 @@ export function TodayView() {
         </Card>
         <div className="space-y-4">
           <TimerWidget variant="card" />
+          {features.isOn("mood") && date === today && <CheckInCard date={date} />}
           <UnscheduledPanel lookups={day.lookups} date={date} today={today} />
         </div>
       </div>

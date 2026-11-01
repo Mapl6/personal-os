@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { createChangeFeed, withChangeFeed, type Change } from "@/repositories/change-feed";
-import { createIndexedDbStore } from "@/repositories/indexeddb-store";
 import { createMemoryStore } from "@/repositories/memory-store";
 import { listSnapshots, migrateData, SCHEMA_VERSION, setSchemaVersion } from "@/repositories/migrations";
 import { createServices } from "@/services";

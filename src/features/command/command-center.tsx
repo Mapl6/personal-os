@@ -7,6 +7,7 @@ import {
   CalendarClock,
   CheckSquare,
   Map as MapIcon,
+  Inbox,
   Moon,
   NotebookPen,
   Pause,
@@ -42,6 +43,7 @@ import { parseQuickAdd, type ParsedQuickAdd } from "@/lib/quick-add/parser";
 import { describeRecurrence } from "@/lib/recurrence";
 import { getServices } from "@/services";
 import { ui, uiStore } from "@/store/ui-store";
+import { captureToInbox } from "@/features/inbox/capture";
 
 type Page = "root" | "timer" | "reschedule";
 
@@ -128,6 +130,13 @@ function CommandBody() {
     );
   };
 
+  const inboxOn = features.routeOn("/inbox");
+  const capture = () => {
+    if (!search.trim()) return;
+    ui.closeCommand();
+    captureToInbox({ text: search });
+  };
+
   const area = parsed?.areaId ? lookups.areaById.get(parsed.areaId) : undefined;
   const project = parsed?.projectId ? lookups.projectById.get(parsed.projectId) : undefined;
   const running = timer.data?.running;
@@ -145,6 +154,11 @@ function CommandBody() {
       loop
       shouldFilter={true}
       onKeyDown={(e) => {
+        if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && page === "root" && inboxOn && search.trim()) {
+          e.preventDefault();
+          capture();
+          return;
+        }
         if (e.key === "Backspace" && !search && page !== "root") {
           e.preventDefault();
           setPage("root");
@@ -195,6 +209,15 @@ function CommandBody() {
             <CommandItem forceMount value={`__create_edit ${search}`} onSelect={() => openEditorFrom(parsed)}>
               <Wand2 /> Create with details…
             </CommandItem>
+            {inboxOn && (
+              <CommandItem forceMount value={`__capture ${search}`} onSelect={capture}>
+                <Inbox /> Capture to inbox
+                <span className="ml-auto flex gap-0.5">
+                  <Kbd>⌘</Kbd>
+                  <Kbd>↵</Kbd>
+                </span>
+              </CommandItem>
+            )}
           </CommandGroup>
         )}
 
