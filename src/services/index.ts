@@ -16,6 +16,7 @@ import { createCheckInService } from "./checkin-service";
 import { createInboxService } from "./inbox-service";
 import { createPageService, type PageService } from "./page-service";
 import { createLinkService } from "./link-service";
+import { createSearchService } from "./search-service";
 
 export function createServices(store: DataStore, now: () => Date = () => new Date()) {
   const ctx: ServiceContext = { store, now };
@@ -44,6 +45,7 @@ export function createServices(store: DataStore, now: () => Date = () => new Dat
     inbox: createInboxService(ctx, { tasks: () => tasks, pages: () => pages, attachments: () => attachments }),
     checkIns: createCheckInService(ctx),
     links: createLinkService(ctx),
+    search: createSearchService(ctx),
   };
 }
 
