@@ -1,4 +1,5 @@
 import { addDaysKey, weekdayOf, type DateKey } from "@/lib/date";
+import { createTrashService } from "./trash-service";
 import type { PlanChange } from "@/lib/planning/changes";
 import { createId } from "@/lib/utils/id";
 import { weekTemplateSchema, type TemplateItem, type WeekTemplate } from "@/types/domain";
@@ -32,7 +33,8 @@ export function createTemplateService(ctx: ServiceContext) {
       );
     },
     async remove(id: string) {
-      await store.templates.delete(id);
+      const tpl = await must(store.templates.get(id), "Template");
+      return createTrashService(ctx).moveToTrash({ type: "template", entityId: id, title: tpl.name, rows: [{ collection: "templates", row: tpl }] });
     },
     /**
      * Proposes the tasks a template would add to the week starting at

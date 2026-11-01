@@ -1,4 +1,5 @@
 import { toDateKey } from "@/lib/date";
+import { createTrashService } from "./trash-service";
 import { createId } from "@/lib/utils/id";
 import { goalSchema, type Goal, type GoalProgress, type Milestone } from "@/types/domain";
 import { must, type ServiceContext } from "./context";
@@ -34,12 +35,21 @@ export function createGoalService(ctx: ServiceContext) {
       return store.goals.put(goal);
     },
     update,
-    async remove(id: string): Promise<void> {
+    /** Moves the goal and its progress log to the trash; linked tasks are re-linked on restore. */
+    async remove(id: string) {
+      const goal = await must(store.goals.get(id), "Goal");
       const progress = await store.goalProgress.listBy("goalId", id);
-      await store.goalProgress.deleteMany(progress.map((p) => p.id));
       const tasks = (await store.tasks.list()).filter((t) => t.goalId === id);
-      await store.tasks.putMany(tasks.map((t) => ({ ...t, goalId: null, milestoneId: null })));
-      await store.goals.delete(id);
+      return createTrashService(ctx).moveToTrash({
+        type: "goal",
+        entityId: id,
+        title: goal.title,
+        rows: [{ collection: "goals", row: goal }, ...progress.map((r) => ({ collection: "goalProgress" as const, row: r }))],
+        relinks: tasks.flatMap((t) => [
+          { collection: "tasks" as const, id: t.id, field: "goalId", value: id },
+          ...(t.milestoneId ? [{ collection: "tasks" as const, id: t.id, field: "milestoneId", value: t.milestoneId }] : []),
+        ]),
+      });
     },
     async logProgress(goalId: string, value: number, date?: string, note = ""): Promise<GoalProgress> {
       await must(store.goals.get(goalId), "Goal");
@@ -48,6 +58,7 @@ export function createGoalService(ctx: ServiceContext) {
         goalId,
         value,
         date: date ?? toDateKey(ctx.now()),
+        updatedAt: iso(),
         note,
         createdAt: iso(),
       };

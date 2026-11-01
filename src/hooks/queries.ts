@@ -26,6 +26,15 @@ export const qk = {
 
 const s = () => getServices();
 
+/** One-time startup work: data migrations and trash purge. Everything else waits for it. */
+export function useBoot() {
+  return useQuery({ queryKey: ["boot"], queryFn: () => s().data.boot(), staleTime: Infinity, retry: false });
+}
+
+export function useTrash() {
+  return useQuery({ queryKey: ["trash"], queryFn: () => s().trash.list() });
+}
+
 export function useSettings() {
   const q = useQuery({ queryKey: qk.settings, queryFn: () => s().data.getSettings() });
   return { ...q, settings: q.data ?? DEFAULT_SETTINGS };

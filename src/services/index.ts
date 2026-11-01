@@ -10,6 +10,7 @@ import { createScheduleService, type ScheduleService } from "./schedule-service"
 import { createTaskService, type TaskService } from "./task-service";
 import { createTemplateService } from "./template-service";
 import { createTimeService, type TimeService } from "./time-service";
+import { createTrashService } from "./trash-service";
 
 export function createServices(store: DataStore, now: () => Date = () => new Date()) {
   const ctx: ServiceContext = { store, now };
@@ -30,6 +31,7 @@ export function createServices(store: DataStore, now: () => Date = () => new Dat
     reviews: createReviewService(ctx),
     templates: createTemplateService(ctx),
     data: createDataService(ctx),
+    trash: createTrashService(ctx),
   };
 }
 

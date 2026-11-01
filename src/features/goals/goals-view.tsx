@@ -89,7 +89,7 @@ function GoalCard({ result, onEdit }: { result: GoalProgressResult; onEdit: () =
   const [milestone, setMilestone] = React.useState("");
   const g = () => getServices().goals;
   const log = useAction((v: number) => g().logProgress(goal.id, v), { invalidate: ["goals"], success: (_, v) => `Logged ${v} ${result.unitLabel}` });
-  const remove = useAction(() => g().remove(goal.id), { invalidate: ["goals", "work"], success: "Goal deleted" });
+  const remove = useAction(() => g().remove(goal.id), { invalidate: ["goals", "work", "trash"], success: "Goal moved to trash", undo: (item) => getServices().trash.restore(item.id) });
   const archive = useAction(() => g().update(goal.id, { archived: true }), { invalidate: ["goals"], success: "Goal archived" });
   const addMs = useAction((title: string) => g().addMilestone(goal.id, title), { invalidate: ["goals"] });
   const toggleMs = useAction((id: string) => g().toggleMilestone(goal.id, id), { invalidate: ["goals"] });

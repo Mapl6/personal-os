@@ -31,8 +31,9 @@ export function AreaDetail({ id }: { id: string }) {
   const [newProject, setNewProject] = React.useState(false);
   const [confirm, setConfirm] = React.useState(false);
   const remove = useAction(() => getServices().areas.remove(id), {
-    invalidate: ["areas"],
-    success: "Area deleted — tasks and projects were kept",
+    invalidate: ["areas", "trash"],
+    success: "Area moved to trash — tasks and projects were kept",
+    undo: (item) => getServices().trash.restore(item.id),
     onSuccess: () => router.push("/areas"),
   });
   const archive = useAction((archived: boolean) => getServices().areas.update(id, { archived }), {

@@ -10,7 +10,7 @@ import { NotificationScheduler, RecurrenceMaterializer } from "@/features/notifi
 import { Onboarding } from "@/features/onboarding/onboarding";
 import { BlockEditorDialog, RescheduleDialog, RolloverDialog, SplitDialog } from "@/features/tasks/schedule-dialogs";
 import { TaskEditorDialog } from "@/features/tasks/task-editor-dialog";
-import { useSettings } from "@/hooks/queries";
+import { useBoot, useSettings } from "@/hooks/queries";
 import { setCalendarConfig } from "@/lib/date";
 import { ui } from "@/store/ui-store";
 import { BottomNav } from "./bottom-nav";
@@ -18,10 +18,16 @@ import { GlobalShortcuts } from "./shortcuts";
 import { Sidebar } from "./sidebar";
 import { SpaceTabs } from "./space-tabs";
 import { ThemeSync } from "./theme-sync";
+import { StoragePersistence } from "./storage-persistence";
 import { ThemeToggle } from "./theme-toggle";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { settings, isLoading, isError, error } = useSettings();
+  const boot = useBoot();
+  const settingsQuery = useSettings();
+  const { settings } = settingsQuery;
+  const isLoading = boot.isLoading || settingsQuery.isLoading;
+  const isError = boot.isError || settingsQuery.isError;
+  const error = boot.error ?? settingsQuery.error;
   // Calendar system / language / digits drive every formatted date. Applied
   // synchronously so the very first render already uses them.
   setCalendarConfig({ ...settings.calendar, dateFormat: settings.dateFormat });
@@ -31,7 +37,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return (
       <div className="flex min-h-dvh items-center justify-center p-6 text-center">
         <div>
-          <p className="font-medium">Couldn’t open local storage.</p>
+          <p className="font-medium">{boot.isError ? "Couldn’t upgrade your local data." : "Couldn’t open local storage."}</p>
           <p className="mt-1 text-sm text-muted-foreground">{(error as Error).message}. Private browsing may block IndexedDB.</p>
         </div>
       </div>
@@ -99,6 +105,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <ThemeSync />
       <RecurrenceMaterializer />
       <NotificationScheduler />
+      <StoragePersistence />
     </div>
   );
 }

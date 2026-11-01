@@ -15,7 +15,7 @@ export function createTimeService(ctx: ServiceContext, deps: { tasks: () => Task
   function close(entry: TimeEntry, reason: "pause" | "stop"): TimeEntry {
     const end = ctx.now();
     const minutes = Math.max(0, (end.getTime() - new Date(entry.start).getTime()) / 60000);
-    return { ...entry, end: end.toISOString(), durationMinutes: Math.round(minutes * 100) / 100, endReason: reason };
+    return { ...entry, end: end.toISOString(), durationMinutes: Math.round(minutes * 100) / 100, endReason: reason, updatedAt: end.toISOString() };
   }
 
   async function running(): Promise<TimeEntry | undefined> {
@@ -44,6 +44,7 @@ export function createTimeService(ctx: ServiceContext, deps: { tasks: () => Task
       source: "timer",
       endReason: null,
       note: "",
+      updatedAt: now.toISOString(),
     };
     await store.timeEntries.put(entry);
     await deps.tasks().syncStatus(taskId);
@@ -120,6 +121,7 @@ export function createTimeService(ctx: ServiceContext, deps: { tasks: () => Task
       source: "manual",
       endReason: "stop",
       note: input.note ?? "",
+      updatedAt: ctx.now().toISOString(),
     };
     await store.timeEntries.put(entry);
     return entry;
@@ -133,6 +135,7 @@ export function createTimeService(ctx: ServiceContext, deps: { tasks: () => Task
       durationMinutes: patch.minutes ?? entry.durationMinutes,
       date: patch.date ?? entry.date,
       note: patch.note ?? entry.note,
+      updatedAt: ctx.now().toISOString(),
     };
     await store.timeEntries.put(next);
     return next;

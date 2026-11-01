@@ -1,4 +1,5 @@
 import { createId } from "@/lib/utils/id";
+import { createTrashService } from "./trash-service";
 import { taskSchema, type Priority, type Recurrence, type Subtask, type Task, type TaskStatus } from "@/types/domain";
 import { must, type ServiceContext } from "./context";
 import type { ScheduleService } from "./schedule-service";
@@ -77,17 +78,28 @@ export function createTaskService(ctx: ServiceContext, getSchedule: () => Schedu
     return next;
   }
 
-  async function remove(id: string): Promise<void> {
-    const [blocks, entries] = await Promise.all([
+  /** Moves the task, its blocks and time entries to the trash as one restorable bundle. */
+  async function remove(id: string) {
+    const task = await must(store.tasks.get(id), "Task");
+    const [blocks, entries, all] = await Promise.all([
       store.blocks.listBy("taskId", id),
       store.timeEntries.listBy("taskId", id),
+      store.tasks.list(),
     ]);
-    await store.blocks.deleteMany(blocks.map((b) => b.id));
-    await store.timeEntries.deleteMany(entries.map((e) => e.id));
-    await store.tasks.delete(id);
-    // Drop dangling dependency references.
-    const dependents = (await store.tasks.list()).filter((t) => t.dependencies.includes(id));
-    await store.tasks.putMany(dependents.map((t) => ({ ...t, dependencies: t.dependencies.filter((d) => d !== id) })));
+    return createTrashService(ctx).moveToTrash({
+      type: "task",
+      entityId: id,
+      title: task.title,
+      rows: [
+        { collection: "tasks", row: task },
+        ...blocks.map((r) => ({ collection: "blocks" as const, row: r })),
+        ...entries.map((r) => ({ collection: "timeEntries" as const, row: r })),
+      ],
+      // Dependency references on other tasks come back on restore.
+      relinks: all
+        .filter((t) => t.dependencies.includes(id))
+        .map((t) => ({ collection: "tasks" as const, id: t.id, field: "dependencies", value: id })),
+    });
   }
 
   /** Completes the task and any of its still-planned blocks. */

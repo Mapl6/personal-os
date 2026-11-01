@@ -122,7 +122,7 @@ function CommandBody() {
         ),
       {
         success: (t) => `Created “${t.title}”`,
-        undo: (t) => getServices().tasks.remove(t.id),
+        undo: (t) => getServices().tasks.remove(t.id).then((item) => getServices().trash.deleteForever(item.id)),
       },
     );
   };

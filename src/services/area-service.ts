@@ -1,4 +1,5 @@
 import { createId } from "@/lib/utils/id";
+import { createTrashService } from "./trash-service";
 import { areaSchema, projectSchema, type Area, type Project } from "@/types/domain";
 import { must, type ServiceContext } from "./context";
 
@@ -21,19 +22,28 @@ export function createAreaService(ctx: ServiceContext) {
         ...input,
         archived: false,
         createdAt: iso(),
+        updatedAt: iso(),
       });
       return store.areas.put(area);
     },
     async update(id: string, patch: Partial<AreaInput & { archived: boolean }>): Promise<Area> {
       const area = await must(store.areas.get(id), "Area");
-      return store.areas.put(areaSchema.parse({ ...area, ...patch }));
+      return store.areas.put(areaSchema.parse({ ...area, ...patch, updatedAt: iso() }));
     },
-    /** Deletes the area; its tasks/projects are kept but detached. */
-    async remove(id: string): Promise<void> {
+    /** Moves the area to the trash; its tasks/projects are kept, detached, and re-attached on restore. */
+    async remove(id: string) {
+      const area = await must(store.areas.get(id), "Area");
       const [tasks, projects] = await Promise.all([store.tasks.listBy("areaId", id), store.projects.listBy("areaId", id)]);
-      await store.tasks.putMany(tasks.map((t) => ({ ...t, areaId: null })));
-      await store.projects.putMany(projects.map((p) => ({ ...p, areaId: null })));
-      await store.areas.delete(id);
+      return createTrashService(ctx).moveToTrash({
+        type: "area",
+        entityId: id,
+        title: area.name,
+        rows: [{ collection: "areas", row: area }],
+        relinks: [
+          ...tasks.map((t) => ({ collection: "tasks" as const, id: t.id, field: "areaId", value: id })),
+          ...projects.map((p) => ({ collection: "projects" as const, id: p.id, field: "areaId", value: id })),
+        ],
+      });
     },
   };
 }
@@ -60,11 +70,17 @@ export function createProjectService(ctx: ServiceContext) {
       const project = await must(store.projects.get(id), "Project");
       return store.projects.put(projectSchema.parse({ ...project, ...patch, updatedAt: iso() }));
     },
-    /** Deletes a project; its tasks are kept but detached. */
-    async remove(id: string): Promise<void> {
+    /** Moves the project to the trash; its tasks are kept, detached, and re-attached on restore. */
+    async remove(id: string) {
+      const project = await must(store.projects.get(id), "Project");
       const tasks = await store.tasks.listBy("projectId", id);
-      await store.tasks.putMany(tasks.map((t) => ({ ...t, projectId: null })));
-      await store.projects.delete(id);
+      return createTrashService(ctx).moveToTrash({
+        type: "project",
+        entityId: id,
+        title: project.name,
+        rows: [{ collection: "projects", row: project }],
+        relinks: tasks.map((t) => ({ collection: "tasks" as const, id: t.id, field: "projectId", value: id })),
+      });
     },
   };
 }

@@ -301,7 +301,7 @@ export async function seedExampleData(services: Services, areas: Area[], now = n
     for (let i = 1; i <= 28; i++) {
       const date = addDaysKey(today, -i);
       if (def.weekdays.includes(weekdayOf(date)) && rand() < def.rate) {
-        entries.push({ id: createId("he"), habitId: habit.id, date, createdAt: now.toISOString() });
+        entries.push({ id: createId("he"), habitId: habit.id, date, createdAt: now.toISOString(), updatedAt: now.toISOString() });
       }
     }
     await services.store.habitEntries.putMany(entries);
@@ -399,6 +399,7 @@ async function seedHistory(
           source: "timer",
           endReason: "stop",
           note: "",
+          updatedAt: iso,
         });
       }
       const taskStatus = status === "completed" ? "completed" : "skipped";

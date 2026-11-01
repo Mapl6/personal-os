@@ -14,6 +14,7 @@ import {
   Sun,
   Target,
   CalendarClock,
+  Trash2,
   type LucideIcon,
 } from "lucide-react";
 
@@ -39,6 +40,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/analytics", label: "Analytics", icon: BarChart3, shortcut: "y" },
   { href: "/reviews", label: "Reviews", icon: NotebookPen, shortcut: "r" },
   { href: "/settings", label: "Settings", icon: Settings, shortcut: "s" },
+  { href: "/trash", label: "Trash", icon: Trash2 },
 ];
 
 /**
@@ -62,7 +64,7 @@ export const NAV_SPACES: NavSpace[] = [
   { href: "/tasks", label: "Tasks", icon: CheckSquare, pages: ["/tasks"] },
   { href: "/goals", label: "Life", icon: Layers, pages: ["/goals", "/projects", "/areas", "/habits"] },
   { href: "/analytics", label: "Insights", icon: ChartLine, pages: ["/analytics", "/reviews"] },
-  { href: "/settings", label: "Settings", icon: Settings, pages: ["/settings"] },
+  { href: "/settings", label: "Settings", icon: Settings, pages: ["/settings", "/trash"] },
 ];
 
 /** Tab labels inside a space, where they differ from the page's own nav label. */

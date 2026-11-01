@@ -1,4 +1,5 @@
 import { createId } from "@/lib/utils/id";
+import { createTrashService } from "./trash-service";
 import type { Review, ReviewType } from "@/types/domain";
 import type { ServiceContext } from "./context";
 
@@ -29,7 +30,14 @@ export function createReviewService(ctx: ServiceContext) {
       return store.reviews.put(review);
     },
     async remove(id: string) {
-      await store.reviews.delete(id);
+      const review = await store.reviews.get(id);
+      if (!review) return;
+      return createTrashService(ctx).moveToTrash({
+        type: "review",
+        entityId: id,
+        title: `${review.type[0].toUpperCase()}${review.type.slice(1)} review · ${review.periodStart}`,
+        rows: [{ collection: "reviews", row: review }],
+      });
     },
   };
 }

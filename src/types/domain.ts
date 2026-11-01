@@ -12,6 +12,8 @@ import { z } from "zod";
 const dateKey = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected yyyy-MM-dd");
 const isoDateTime = z.string().min(1);
 const minutes = z.number().int().min(0).max(24 * 60 * 7);
+/** Placeholder `updatedAt` for rows written before the field existed (filled by migration 2). */
+export const EPOCH = "1970-01-01T00:00:00.000Z";
 
 export const AREA_COLORS = [
   "indigo",
@@ -36,6 +38,7 @@ export const areaSchema = z.object({
   order: z.number().default(0),
   archived: z.boolean().default(false),
   createdAt: isoDateTime,
+  updatedAt: isoDateTime.default(EPOCH),
 });
 export type Area = z.infer<typeof areaSchema>;
 
@@ -155,6 +158,7 @@ export const timeEntrySchema = z.object({
   /** "pause" keeps the session resumable; "stop" ends it. */
   endReason: z.enum(["pause", "stop"]).nullable().default(null),
   note: z.string().default(""),
+  updatedAt: isoDateTime.default(EPOCH),
 });
 export type TimeEntry = z.infer<typeof timeEntrySchema>;
 
@@ -205,6 +209,7 @@ export const goalProgressSchema = z.object({
   value: z.number(),
   note: z.string().default(""),
   createdAt: isoDateTime,
+  updatedAt: isoDateTime.default(EPOCH),
 });
 export type GoalProgress = z.infer<typeof goalProgressSchema>;
 
@@ -218,6 +223,7 @@ export const habitSchema = z.object({
   archived: z.boolean().default(false),
   order: z.number().default(0),
   createdAt: isoDateTime,
+  updatedAt: isoDateTime.default(EPOCH),
 });
 export type Habit = z.infer<typeof habitSchema>;
 
@@ -226,6 +232,7 @@ export const habitEntrySchema = z.object({
   habitId: z.string(),
   date: dateKey,
   createdAt: isoDateTime,
+  updatedAt: isoDateTime.default(EPOCH),
 });
 export type HabitEntry = z.infer<typeof habitEntrySchema>;
 
@@ -352,6 +359,10 @@ export const settingsSchema = z.object({
   appearanceVersion: z.number().int().min(0).default(0),
   density: z.enum(["comfortable", "compact"]).default("comfortable"),
   calendar: calendarSettingsSchema.default(DEFAULT_CALENDAR),
+  /** Feature toggles: featureId → enabled. Missing = the registry default. */
+  features: z.record(z.string(), z.boolean()).default({}),
+  /** Set once the browser has been asked to keep local data (navigator.storage.persist). */
+  storagePersistAsked: z.boolean().default(false),
   customization: customizationSchema.default(customizationSchema.parse({})),
   notifications: z
     .object({
@@ -382,3 +393,171 @@ export const settingsSchema = z.object({
 export type Settings = z.infer<typeof settingsSchema>;
 
 export const DEFAULT_SETTINGS: Settings = settingsSchema.parse({ id: "settings" });
+
+// ================================================================ Phase 1: foundation
+
+// ---------------------------------------------------------------- References
+/** Anything that can be linked to, mentioned or trashed. For "day" the id is a date key. */
+export const ENTITY_TYPES = [
+  "page",
+  "task",
+  "project",
+  "area",
+  "goal",
+  "habit",
+  "inbox",
+  "day",
+  "review",
+  "template",
+  "attachment",
+] as const;
+export type EntityType = (typeof ENTITY_TYPES)[number];
+
+export const entityRefSchema = z.object({ type: z.enum(ENTITY_TYPES), id: z.string() });
+export type EntityRef = z.infer<typeof entityRefSchema>;
+
+export const refKey = (ref: EntityRef) => `${ref.type}:${ref.id}`;
+
+// ---------------------------------------------------------------- Trash
+/**
+ * A deleted entity together with everything that was removed or detached with
+ * it (a task's blocks and time entries, a project's task links…). Restoring a
+ * bundle puts all of it back in one step. Bundles are purged after 30 days.
+ */
+export const trashItemSchema = z.object({
+  id: z.string(),
+  type: z.enum(ENTITY_TYPES),
+  entityId: z.string(),
+  title: z.string(),
+  deletedAt: isoDateTime,
+  /** Rows removed from their collections, re-inserted on restore. */
+  rows: z.array(z.object({ collection: z.string(), row: z.record(z.string(), z.unknown()) })),
+  /** Foreign keys cleared on other rows (e.g. tasks detached from a deleted project), re-set on restore if still empty. */
+  relinks: z
+    .array(z.object({ collection: z.string(), id: z.string(), field: z.string(), value: z.unknown() }))
+    .default([]),
+});
+export type TrashItem = z.infer<typeof trashItemSchema>;
+export const TRASH_RETENTION_DAYS = 30;
+
+// ---------------------------------------------------------------- Inbox & attachments
+export const INBOX_KINDS = ["text", "link", "image", "file"] as const;
+export const INBOX_SOURCES = ["app", "share", "paste", "brain_dump", "import"] as const;
+
+export const inboxItemSchema = z.object({
+  id: z.string(),
+  kind: z.enum(INBOX_KINDS),
+  text: z.string().max(20000).default(""),
+  url: z.string().nullable().default(null),
+  attachmentIds: z.array(z.string()).default([]),
+  source: z.enum(INBOX_SOURCES).default("app"),
+  status: z.enum(["new", "processed", "archived"]).default("new"),
+  /** Where it went when processed. */
+  processedTo: entityRefSchema.nullable().default(null),
+  /** Set when processing failed, so nothing is silently lost. */
+  error: z.string().nullable().default(null),
+  createdAt: isoDateTime,
+  updatedAt: isoDateTime,
+});
+export type InboxItem = z.infer<typeof inboxItemSchema>;
+
+export const attachmentSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  mime: z.string(),
+  size: z.number().int().min(0),
+  /** SHA-256 of the bytes: dedupes identical files. */
+  sha256: z.string(),
+  /** The bytes. Stored as a Blob in IndexedDB; exported as a data URL. */
+  blob: z.custom<Blob>((v) => typeof Blob !== "undefined" && v instanceof Blob),
+  createdAt: isoDateTime,
+  updatedAt: isoDateTime,
+});
+export type Attachment = z.infer<typeof attachmentSchema>;
+export const MAX_ATTACHMENT_BYTES = 25 * 1024 * 1024;
+
+// ---------------------------------------------------------------- Check-ins
+export const MOODS = [1, 2, 3, 4, 5] as const;
+
+/** A quick mood (and optional energy) log; several per day are fine. */
+export const checkInSchema = z.object({
+  id: z.string(),
+  date: dateKey,
+  at: isoDateTime,
+  mood: z.number().int().min(1).max(5).nullable().default(null),
+  energy: z.number().int().min(1).max(5).nullable().default(null),
+  note: z.string().max(2000).default(""),
+  createdAt: isoDateTime,
+  updatedAt: isoDateTime,
+});
+export type CheckIn = z.infer<typeof checkInSchema>;
+
+/** One overall rating per day. */
+export const dayRatingSchema = z.object({
+  id: z.string(),
+  date: dateKey,
+  rating: z.number().int().min(1).max(5),
+  note: z.string().max(2000).default(""),
+  createdAt: isoDateTime,
+  updatedAt: isoDateTime,
+});
+export type DayRating = z.infer<typeof dayRatingSchema>;
+
+// ---------------------------------------------------------------- Pages
+export const PAGE_KINDS = ["page", "daily", "weekly", "monthly", "template"] as const;
+export type PageKind = (typeof PAGE_KINDS)[number];
+
+export const pageSchema = z.object({
+  id: z.string(),
+  title: z.string().max(300).default(""),
+  /** Emoji. */
+  icon: z.string().nullable().default(null),
+  kind: z.enum(PAGE_KINDS).default("page"),
+  /** For period notes: the period start (Gregorian key). Unique per (kind, periodStart). */
+  periodStart: dateKey.nullable().default(null),
+  parentId: z.string().nullable().default(null),
+  /** Fractional order key among siblings. */
+  order: z.string().default("a0"),
+  areaId: z.string().nullable().default(null),
+  projectId: z.string().nullable().default(null),
+  tags: z.array(z.string()).default([]),
+  favourite: z.boolean().default(false),
+  lastOpenedAt: isoDateTime.nullable().default(null),
+  createdAt: isoDateTime,
+  updatedAt: isoDateTime,
+});
+export type Page = z.infer<typeof pageSchema>;
+
+/**
+ * Page body, stored apart from metadata because it is large and changes often.
+ * `doc` is the editor's block JSON; `text` and `outline` are derived on save
+ * for search, links and snippets.
+ */
+export const pageContentSchema = z.object({
+  /** Same as the page id. */
+  id: z.string(),
+  doc: z.array(z.unknown()).default([]),
+  text: z.string().default(""),
+  outline: z.array(z.object({ id: z.string(), type: z.string(), text: z.string() })).default([]),
+  updatedAt: isoDateTime,
+});
+export type PageContent = z.infer<typeof pageContentSchema>;
+
+// ---------------------------------------------------------------- Links
+export const LINK_KINDS = ["wikilink", "mention", "tag", "task"] as const;
+
+/** Derived from content by the link indexer — never edited directly. */
+export const linkSchema = z.object({
+  id: z.string(),
+  /** `type:id` of the source, indexed. */
+  fromKey: z.string(),
+  from: entityRefSchema,
+  fromBlockId: z.string().nullable().default(null),
+  /** `type:id` of the target, indexed (backlinks query this). */
+  toKey: z.string(),
+  to: entityRefSchema,
+  kind: z.enum(LINK_KINDS),
+  /** Text around the link, for backlink snippets. */
+  context: z.string().default(""),
+});
+export type Link = z.infer<typeof linkSchema>;
