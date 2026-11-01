@@ -3,6 +3,7 @@ import { deriveContent, textToBlocks } from "@/lib/pages/blocks";
 import { createId } from "@/lib/utils/id";
 import { pageSchema, type Page, type PageContent, type PageKind } from "@/types/domain";
 import { DomainError, must, type ServiceContext } from "./context";
+import { createLinkService } from "./link-service";
 import { createTrashService } from "./trash-service";
 
 export interface PageInput {
@@ -25,6 +26,7 @@ export const periodNoteId = (kind: PageKind, periodStart: string) => `${kind}-${
 export function createPageService(ctx: ServiceContext) {
   const { store } = ctx;
   const iso = () => ctx.now().toISOString();
+  const links = createLinkService(ctx);
 
   async function siblings(parentId: string | null): Promise<Page[]> {
     const all = parentId ? await store.pages.listBy("parentId", parentId) : (await store.pages.list()).filter((p) => !p.parentId);
@@ -33,7 +35,9 @@ export function createPageService(ctx: ServiceContext) {
 
   async function writeContent(pageId: string, doc: unknown[]): Promise<PageContent> {
     const { text, outline } = deriveContent(doc);
-    return store.pageContents.put({ id: pageId, doc, text, outline, updatedAt: iso() });
+    const content = await store.pageContents.put({ id: pageId, doc, text, outline, updatedAt: iso() });
+    await links.reindex({ type: "page", id: pageId }, doc);
+    return content;
   }
 
   async function create(input: PageInput = {}, id?: string): Promise<Page> {
@@ -55,8 +59,15 @@ export function createPageService(ctx: ServiceContext) {
       createdAt: now,
       updatedAt: now,
     });
+    // A natural id (period notes) may have just been created in another tab: keep what's there.
+    if (id) {
+      const existing = await store.pages.get(id);
+      if (existing) return existing;
+    }
     await store.pages.put(page);
-    await writeContent(page.id, input.doc ?? (input.text ? textToBlocks(input.text) : []));
+    if (!(id && (await store.pageContents.get(id)))) {
+      await writeContent(page.id, input.doc ?? (input.text ? textToBlocks(input.text) : []));
+    }
     return page;
   }
 
@@ -112,6 +123,7 @@ export function createPageService(ctx: ServiceContext) {
     const page = await must(store.pages.get(id), "Page");
     const all = [page, ...(await descendants(id))];
     const contents = (await Promise.all(all.map((p) => store.pageContents.get(p.id)))).filter((c): c is PageContent => !!c);
+    const outgoing = (await Promise.all(all.map((p) => links.outgoing({ type: "page", id: p.id })))).flat();
     return createTrashService(ctx).moveToTrash({
       type: "page",
       entityId: id,
@@ -119,6 +131,7 @@ export function createPageService(ctx: ServiceContext) {
       rows: [
         ...all.map((p) => ({ collection: "pages" as const, row: p })),
         ...contents.map((c) => ({ collection: "pageContents" as const, row: c })),
+        ...outgoing.map((l) => ({ collection: "links" as const, row: l })),
       ],
     });
   }

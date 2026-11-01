@@ -171,3 +171,33 @@ export function useCheckIns(date: string | null) {
 export function useDayRating(date: string | null) {
   return useQuery({ queryKey: ["dayRatings", date], queryFn: async () => (await s().checkIns.ratingFor(date!)) ?? null, enabled: !!date });
 }
+
+export function usePages() {
+  return useQuery({
+    queryKey: ["pages"],
+    queryFn: async () => (await s().store.pages.list()).sort((a, b) => (a.order < b.order ? -1 : a.order > b.order ? 1 : 0)),
+  });
+}
+
+export function usePageContent(id: string | null) {
+  return useQuery({
+    queryKey: ["pageContents", id],
+    queryFn: async () => (id ? ((await s().pages.content(id)) ?? null) : null),
+    enabled: !!id,
+    // The editor owns the document while open; refetching would reset the cursor.
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useBacklinks(ref: { type: import("@/types/domain").EntityType; id: string } | null) {
+  return useQuery({
+    queryKey: ["links", "to", ref?.type, ref?.id],
+    queryFn: () => s().links.backlinks(ref!),
+    enabled: !!ref,
+  });
+}
+
+export function useTags() {
+  return useQuery({ queryKey: ["links", "tags"], queryFn: () => s().links.tags() });
+}

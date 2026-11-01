@@ -410,6 +410,7 @@ export const ENTITY_TYPES = [
   "review",
   "template",
   "attachment",
+  "tag",
 ] as const;
 export type EntityType = (typeof ENTITY_TYPES)[number];
 

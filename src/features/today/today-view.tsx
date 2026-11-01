@@ -1,6 +1,7 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, LayoutList, Plus, Redo2, Rows3 } from "lucide-react";
+import { ChevronLeft, ChevronRight, LayoutList, NotebookText, Plus, Redo2, Rows3 } from "lucide-react";
+import Link from "next/link";
 import * as React from "react";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
@@ -94,6 +95,13 @@ export function TodayView() {
             {unfinishedEarlier > 0 && offset === 0 && (
               <Button size="sm" variant="secondary" onClick={() => ui.openRollover()}>
                 <Redo2 /> {unfinishedEarlier} unfinished earlier
+              </Button>
+            )}
+            {features.isOn("dailyNotes") && (
+              <Button size="sm" variant="ghost" asChild>
+                <Link href={date === today ? "/daily" : `/daily/${date}`}>
+                  <NotebookText /> Note
+                </Link>
               </Button>
             )}
             <Button size="sm" onClick={() => ui.newTask({ date })} className="hidden sm:inline-flex">
