@@ -116,6 +116,7 @@ Switch under **Settings → Calendar & language**, or pick it during setup:
 - **Use Iranian defaults** sets Shamsi, Persian names and digits, a Saturday week start and a Saturday–Thursday working week in one click.
 - **Quick Add understands Persian**: `ورزش ۲ ساعت فردا ۱۸:۰۰`, `کتاب شنبه`, `امروز`, `پس‌فردا`.
 - Conversion uses the browser's built-in `Intl` Persian calendar, so there's no extra dependency. Dates are always stored in Gregorian form, so switching calendars loses nothing.
+- **Try it instantly:** [`/?demo=1&calendar=jalali`](https://personal-os-nine-lime.vercel.app/?demo=1&calendar=jalali) opens the demo with the Shamsi calendar, Persian month names and digits.
 
 > **فارسی:** این برنامه از تقویم شمسی پشتیبانی می‌کند: نام ماه‌ها و روزها به فارسی، اعداد فارسی، شروع هفته از شنبه و انتخاب تاریخ شمسی. از مسیر «Settings → Calendar & language» فعالش کنید.
 
