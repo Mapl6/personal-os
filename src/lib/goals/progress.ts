@@ -125,6 +125,6 @@ export function computeGoalProgress(
     target,
     percent: target > 0 ? Math.min(100, Math.round((current / target) * 100)) : 0,
     unitLabel: unit,
-    label: `${current} / ${target}${unit === "h" ? "h" : ` ${unit}`}`,
+    label: `${current} / ${target} ${unit}`,
   };
 }
