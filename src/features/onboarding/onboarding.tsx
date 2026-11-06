@@ -47,11 +47,22 @@ export function Onboarding() {
     { invalidate: ["all"], success: "You're all set. Plans are hypotheses — adjust freely." },
   );
 
-  const demo = useAction(() => setupWorkspace(getServices(), demoWorkspace(Intl.DateTimeFormat().resolvedOptions().timeZone)), {
-    invalidate: ["all"],
-    success: "Exploring with example data. Delete it any time in Settings → Data.",
-    onSuccess: () => window.history.replaceState(null, "", window.location.pathname),
-  });
+  const demo = useAction(
+    () =>
+      setupWorkspace(
+        getServices(),
+        demoWorkspace(
+          Intl.DateTimeFormat().resolvedOptions().timeZone,
+          // `/?demo=1&calendar=jalali` opens the demo with the Shamsi calendar.
+          new URLSearchParams(window.location.search).get("calendar") === "jalali" ? "jalali" : undefined,
+        ),
+      ),
+    {
+      invalidate: ["all"],
+      success: "Exploring with example data. Delete it any time in Settings → Data.",
+      onSuccess: () => window.history.replaceState(null, "", window.location.pathname),
+    },
+  );
   // `/?demo=1` skips setup. Onboarding only renders before setup, so existing data is never touched.
   const demoStarted = React.useRef(false);
   React.useEffect(() => {
