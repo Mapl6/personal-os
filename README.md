@@ -114,6 +114,7 @@ Switch under **Settings → Calendar & language**, or pick it during setup:
 - A **Shamsi date picker** replaces the browser's Gregorian one.
 - Month and day names in **Persian or English** (e.g. «مهر» or *Mehr*), **Persian digits** (۱۲۳), and 12h or 24h time.
 - **Use Iranian defaults** sets Shamsi, Persian names and digits, a Saturday week start and a Saturday–Thursday working week in one click.
+- **Try the Shamsi demo**: open [`/?demo=1&calendar=jalali`](https://personal-os-nine-lime.vercel.app/?demo=1&calendar=jalali) to explore the example data with the Shamsi calendar.
 - **Quick Add understands Persian**: `ورزش ۲ ساعت فردا ۱۸:۰۰`, `کتاب شنبه`, `امروز`, `پس‌فردا`.
 - Conversion uses the browser's built-in `Intl` Persian calendar, so there's no extra dependency. Dates are always stored in Gregorian form, so switching calendars loses nothing.
 

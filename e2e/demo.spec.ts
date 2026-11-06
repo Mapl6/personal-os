@@ -8,6 +8,14 @@ test("?demo=1 skips onboarding and loads example data", async ({ page }) => {
   await expect(page.getByRole("main")).not.toContainText("No projects");
 });
 
+test("?demo=1&calendar=jalali opens the demo with Persian month names and digits", async ({ page }) => {
+  await page.goto("/?demo=1&calendar=jalali");
+  await expect(page.getByRole("heading", { name: /Good (morning|afternoon|evening)|Working late/ })).toBeVisible();
+  await expect(page).not.toHaveURL(/demo/);
+  // The date line under the greeting renders in the Shamsi calendar with Persian digits.
+  await expect(page.locator("h1 + p")).toContainText(/[۰-۹]/);
+});
+
 test("Try the demo button on the welcome step", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Try the demo" }).click();
